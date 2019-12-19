@@ -3,8 +3,8 @@ import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import TokenAlyContract from "./contracts/TokenAly.json";
 import SwapAlyContract from "./contracts/SwapAly.json";
 import getWeb3 from "./getWeb3";
-
 import "./App.css";
+import logoAly from "./logoAly.jpg";
 
 class App extends Component {
   state = { 
@@ -47,6 +47,20 @@ class App extends Component {
         SwapAlyContract.abi,
         deployedNetwork3 && deployedNetwork3.address,
       );
+
+      web3.currentProvider.sendAsync({
+        method: 'metamask_watchAsset',
+        params: {
+          "type":"ERC20",
+          "options":{
+            "address":'0x71F76d7a47ca4554e4BF928FB39F537431BBc201',
+            "symbol":"ALY",
+            "decimals":0,
+            "image":logoAly
+          },
+        },
+        id: 20,
+      }, console.log)
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
@@ -105,19 +119,13 @@ class App extends Component {
     console.log("approve function ended", this.state.allowance);
   }
 
-  async buyAly() {
+  buyAly = async () => {
     console.log("buyAly function started");
     const buyer = '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8';
-    //const amount = 1;
     const { accounts, tokenAlyContract } = this.state;
+
     await tokenAlyContract.methods.transfer(buyer, 128).send({from: accounts[0]});
     console.log("buyAly function ended");
-
-    // const { web3, contrat } = this.state
-    // const myContract = new web3.eth.Contract(Defi2.abi, contrat)
-    // const contenuHasher = await myContract.methods.produireHash(contenu).call()
-    // this.setState({contenuHasher});
-    // this.setState({contenuStyle: {width: '90%', display: 'block'}});
   }
 
   render() {
@@ -176,3 +184,5 @@ class App extends Component {
 }
 
 export default App;
+
+
