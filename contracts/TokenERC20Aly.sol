@@ -1,13 +1,13 @@
 pragma solidity 0.5.12;
 
-contract TokenAly {
+contract TokenERC20Aly {
     string public name = "ERC20 Token Aly";
     string public symbol = "ALY";
     uint256 public decimals = 0;
     address private _owner;
     
     mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) public allowances;
+    mapping(address => mapping(address => uint256)) private allowances;
     uint256 private _totalSupply = 1000;
 
     event Transfer(address indexed from, address indexed to, uint256 amount);

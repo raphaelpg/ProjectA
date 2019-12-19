@@ -1,17 +1,15 @@
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import TokenAlyContract from "./contracts/TokenAly.json";
 import SwapAlyContract from "./contracts/SwapAly.json";
+import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import getWeb3 from "./getWeb3";
 import "./App.css";
 import logoAly from "./logoAly.jpg";
 
 class App extends Component {
   state = { 
-    storageValue: 0,
     web3: null,
     accounts: null,
-    contract: null,
     tokenAlyContract: null,
     tokenAlyAmount: 0,
     tokenAlyOwner: null,
@@ -19,7 +17,10 @@ class App extends Component {
     swapAlyContract: null,
     swapAlyOwner: null,
     swapAlyConstructor: null,
-    allowance: 0
+    allowance: 0,
+    priceEthAly: 128,
+    buyAmount: 0,
+    tokenERC20AlyContract: null
   };
 
   componentDidMount = async () => {
@@ -32,13 +33,8 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
       const deployedNetwork2 = TokenAlyContract.networks[networkId];
       const deployedNetwork3 = SwapAlyContract.networks[networkId];
-      const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
-        deployedNetwork && deployedNetwork.address,
-      );
       const instanceTokenAly = new web3.eth.Contract(
         TokenAlyContract.abi,
         deployedNetwork2 && deployedNetwork2.address,
@@ -53,7 +49,7 @@ class App extends Component {
         params: {
           "type":"ERC20",
           "options":{
-            "address":'0x71F76d7a47ca4554e4BF928FB39F537431BBc201',
+            "address":deployedNetwork2.address,
             "symbol":"ALY",
             "decimals":0,
             "image":logoAly
@@ -67,7 +63,6 @@ class App extends Component {
       this.setState({ 
         web3, 
         accounts, 
-        contract: instance, 
         tokenAlyContract: instanceTokenAly,
         swapAlyContract: instanceSwapAly
       }, this.runExample);
@@ -81,13 +76,9 @@ class App extends Component {
   };
 
   runExample = async () => {
-    const { accounts, contract, tokenAlyContract, swapAlyContract, swapAlyConstructor } = this.state;
-
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+    const { accounts, tokenAlyContract, swapAlyContract, swapAlyConstructor } = this.state;
 
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
     const response2 = await tokenAlyContract.methods.totalSupply().call();
     const response3 = await tokenAlyContract.methods.getOwner().call();
     const response4 = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
@@ -96,36 +87,74 @@ class App extends Component {
 
     // Update state with the result.
     this.setState({ 
-      storageValue: response,
       tokenAlyAmount: response2, 
       tokenAlyOwner: response3, 
       ownerBalance: response4,
       swapAlyOwner: response5,
       swapAlyConstructor: response6
     });
-    console.log(this.state.accounts);
   };
+
+  retrievePrice = async () => {
+    console.log("retrieve price function started");
+    this.setState({priceEthAly: 130});
+    console.log("retrieve price function ended");
+  }
 
   approve = async () => {
     console.log("approve function started");
+    const { accounts, tokenAlyOwner, tokenAlyContract, allowance, priceEthAly } = this.state;
     const buyer = '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8';
-    const amount = 128;
-    const { accounts, tokenAlyContract, allowance } = this.state;
+    const amount = 1 * priceEthAly;
+    console.log("tokenAly owner: ", tokenAlyOwner);
+    await tokenAlyContract.methods.approve(buyer, amount).send({from: tokenAlyOwner});
 
-    await tokenAlyContract.methods.approve(buyer, amount).send({from: accounts[0]});
-
-    const allowanceResponse = await tokenAlyContract.methods.allowances(accounts[0], buyer).call();
-    this.setState({allowance: allowanceResponse});
+    // const allowanceResponse = await tokenAlyContract.methods.allowances(tokenAlyOwner, buyer).call();
+    // this.setState({allowance: allowanceResponse});
     console.log("approve function ended", this.state.allowance);
   }
 
-  buyAly = async () => {
+  buyAly = async (amount) => {
     console.log("buyAly function started");
+    const { web3, accounts, tokenAlyContract, swapAlyContract, tokenAlyOwner, priceEthAly } = this.state;
     const buyer = '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8';
-    const { accounts, tokenAlyContract } = this.state;
+    const buyerBalance = await web3.eth.getBalance(accounts[0]);
+    const cost = (amount / priceEthAly) * 10**18;
 
-    await tokenAlyContract.methods.transfer(buyer, 128).send({from: accounts[0]});
-    console.log("buyAly function ended");
+    if(buyerBalance >= cost){
+      console.log("enough funds");
+      console.log("accounts[0] ",accounts[0]);
+      console.log("tokenAlyOwner ", tokenAlyOwner);
+      await swapAlyContract.methods.approve(buyer, amount).send({from: accounts[0]});
+      console.log("approve ok");
+      await swapAlyContract.methods.buyAly(amount, priceEthAly).send({from: buyer, value: cost });
+      console.log("buyAly ok");
+      console.log("accounts[0] ",accounts[0]);
+      await swapAlyContract.methods.transferFrom(accounts[0], buyer, amount).send({from: accounts[0]});
+      console.log("transferFrom ok");
+    } else {
+      console.log("not enough funds");
+    }
+      console.log("buyAly function started4");
+
+    //const buyerBalance2 = web3.fromWei(web3.eth.getBalance(web3.eth.accounts[0]));
+    // if (buyerBalance >= cost){
+    //   approve
+    //   transfer ETH to contract
+    //   transfer token to buyer
+    // }
+
+    //await tokenAlyContract.methods.transfer(buyer, amount).send({from: accounts[0]});
+    console.log('hello');
+    console.log("buyer balance: ", buyerBalance);
+  }
+
+  createAlyTokens = async() => {
+    console.log("create Aly Tokens started");
+    const { web3, accounts } = this.state;
+    // let tokenERC20AlyContract = web3.eth.contract(TokenERC20AlyContract.abi);
+    // let contractERC20 = tokenERC20AlyContract.new({from: accounts[0]});
+    // console.log("Aly Tokens function ended");
   }
 
   render() {
@@ -134,49 +163,50 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <h1>Cryptogama</h1>
         <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
         <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
         <div>The owner balance of ALY is: {this.state.ownerBalance}</div>
         <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
         <div>The swapAly parsed contract is: {this.state.swapAlyConstructor}</div>
+        <div>The ETH price in ALY is: {this.state.priceEthAly}</div>  
+        <div>The current allowance is set to: {this.state.allowance}</div>  
         <div className="conteneur">
+          <h3>Retrieve price</h3>
+            <button type="button" onClick={(event) => {
+              this.createAlyTokens()
+            }}>Create ALY tokens</button>
+          <h3>Retrieve price</h3>
+            <button type="button" onClick={(event) => {
+              this.retrievePrice()
+            }}>Retrieve price</button>
           <h3>Approve</h3>
-          <form onSubmit={(event) => {
-              event.preventDefault()
-              this.approve()
-            }}>
-            <div className="champs">
-              <div className="formulaireItems">
-                <textarea id="toApprove"  readOnly></textarea>
+            <form onSubmit={(event) => {
+                event.preventDefault()
+                this.approve()
+              }}>
+              <div className="champs">
+                <div className="formulaireItems">
+                  <textarea id="toApprove" readOnly></textarea>
+                </div>
               </div>
-            </div>
-            <button type="submit" >Approve</button>
-          </form>
+              <button type="submit">Approve</button>
+            </form>
         </div>
         <div className="conteneur">
           <h3>Buy ALY tokens</h3>
-          <form onSubmit={(event) => {
-              event.preventDefault()
-              this.buyAly()
-            }}>
-            <div className="champs">
-              <div className="formulaireItems">
-                <textarea id="contenuHasher"  readOnly></textarea>
+            <form onSubmit={(event) => {
+                event.preventDefault()
+                const amountToBuy = this.quantity.value
+                this.buyAly(amountToBuy)
+              }}>
+              <div className="champs">
+                <div className="formulaireItems">Amount to buy: 
+                  <input id="quantity" type="text" ref={(input) => { this.quantity = input }} required/>
+                </div>
               </div>
-            </div>
-            <button type="submit" >Buy</button>
-          </form>
+              <button type="submit">Buy</button>
+            </form>
         </div>
       </div>
     );

@@ -1,9 +1,7 @@
-let SimpleStorage = artifacts.require("./SimpleStorage.sol");
 let TokenAly = artifacts.require("./TokenAly.sol");
 let SwapAly = artifacts.require("./SwapAly.sol");
 
-module.exports = function(deployer) {
-  deployer.deploy(SimpleStorage);
-  deployer.deploy(TokenAly);
+module.exports = function(deployer, network, accounts) {
+  deployer.deploy(TokenAly, {from: accounts[1]});
   deployer.deploy(SwapAly, TokenAly.address);
 };
