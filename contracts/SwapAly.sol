@@ -1,24 +1,18 @@
 pragma solidity 0.5.12;
 
-import "./TokenAly.sol";
 import "./SafeMath.sol";
 
 contract SwapAly{
-    string public name = "ERC20 Token Aly";
-    string public symbol = "ALY";
-    uint256 public decimals = 0;
     address private _owner;
-    TokenAly private tokenAly;
 
     mapping(address => uint256) private _balances;
-    mapping(address => mapping(address => uint256)) public allowances;
+    mapping(address => mapping(address => uint256)) private allowances;
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
     event Approval(address indexed owner, address indexed spender, uint256 amount);
-    event AlySold(address indexed from, address indexed to, uint256 amount);
+    event TokenSold(address indexed from, address indexed to, uint256 amount);
 
-    constructor (TokenAly _tokenAlyAddress) public {
-        tokenAly = _tokenAlyAddress;
+    constructor () public {
         _owner = msg.sender;
     }
 
@@ -27,11 +21,7 @@ contract SwapAly{
         return _owner;
     }
 
-    function getTokenAlyAddress() external view returns(TokenAly){
-        return tokenAly;
-    }
-
-    function buyAly(uint256 amount, uint256 rate) external payable returns(bool){
+    function swapToken(uint256 amount, uint256 rate) external payable returns(bool){
         require(msg.value > 0,"unsuficient value");
         require(msg.value >= (amount / rate));
         return true;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import TokenAlyContract from "./contracts/TokenAly.json";
 import SwapAlyContract from "./contracts/SwapAly.json";
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
+import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 import getWeb3 from "./getWeb3";
 import "./App.css";
 import logoAly from "./logoAly.jpg";
@@ -13,14 +13,17 @@ class App extends Component {
     tokenAlyContract: null,
     tokenAlyAmount: 0,
     tokenAlyOwner: null,
-    ownerBalance: 0,
+    tokenAlyOwnerBalance: null,
+    tokenDaiContract: null,
+    tokenDaiAmount: 0,
+    tokenDaiOwner: null,
+    tokenDaiOwnerBalance: null,
     swapAlyContract: null,
     swapAlyOwner: null,
     swapAlyConstructor: null,
     allowance: 0,
     priceEthAly: 128,
     buyAmount: 0,
-    tokenERC20AlyContract: null
   };
 
   componentDidMount = async () => {
@@ -33,14 +36,19 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork2 = TokenAlyContract.networks[networkId];
-      const deployedNetwork3 = SwapAlyContract.networks[networkId];
-      const instanceTokenAly = new web3.eth.Contract(
-        TokenAlyContract.abi,
-        deployedNetwork2 && deployedNetwork2.address,
-      );
+      const deployedNetwork1 = SwapAlyContract.networks[networkId];
+      const deployedNetwork2 = TokenERC20AlyContract.networks[networkId];
+      const deployedNetwork3 = TokenERC20DaiContract.networks[networkId];
       const instanceSwapAly = new web3.eth.Contract(
         SwapAlyContract.abi,
+        deployedNetwork1 && deployedNetwork1.address,
+      );
+      const instanceTokenAly = new web3.eth.Contract(
+        TokenERC20AlyContract.abi,
+        deployedNetwork2 && deployedNetwork2.address,
+      );
+      const instanceTokenDai = new web3.eth.Contract(
+        TokenERC20DaiContract.abi,
         deployedNetwork3 && deployedNetwork3.address,
       );
 
@@ -58,13 +66,28 @@ class App extends Component {
         id: 20,
       }, console.log)
 
+      web3.currentProvider.sendAsync({
+        method: 'metamask_watchAsset',
+        params: {
+          "type":"ERC20",
+          "options":{
+            "address":deployedNetwork3.address,
+            "symbol":"DAI",
+            "decimals":0,
+            "image":logoAly
+          },
+        },
+        id: 30,
+      }, console.log)
+
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({ 
         web3, 
         accounts, 
+        swapAlyContract: instanceSwapAly,
         tokenAlyContract: instanceTokenAly,
-        swapAlyContract: instanceSwapAly
+        tokenDaiContract: instanceTokenDai
       }, this.runExample);
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -76,22 +99,22 @@ class App extends Component {
   };
 
   runExample = async () => {
-    const { accounts, tokenAlyContract, swapAlyContract, swapAlyConstructor } = this.state;
+    const { accounts, swapAlyContract, tokenAlyContract, tokenDaiContract } = this.state;
 
     // Get the value from the contract to prove it worked.
     const response2 = await tokenAlyContract.methods.totalSupply().call();
     const response3 = await tokenAlyContract.methods.getOwner().call();
-    const response4 = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
-    const response5 = await swapAlyContract.methods.getOwner().call();
-    const response6 = await swapAlyContract.methods.getTokenAlyAddress().call();
+    const response4 = await tokenDaiContract.methods.totalSupply().call();
+    const response5 = await tokenDaiContract.methods.getOwner().call();
+    const response6 = await swapAlyContract.methods.getOwner().call();
 
     // Update state with the result.
     this.setState({ 
       tokenAlyAmount: response2, 
       tokenAlyOwner: response3, 
-      ownerBalance: response4,
-      swapAlyOwner: response5,
-      swapAlyConstructor: response6
+      tokenDaiAmount: response4,
+      tokenDaiOwner: response5,
+      swapAlyOwner: response6
     });
   };
 
@@ -166,9 +189,9 @@ class App extends Component {
         <h1>Cryptogama</h1>
         <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
         <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
-        <div>The owner balance of ALY is: {this.state.ownerBalance}</div>
+        <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
+        <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
         <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
-        <div>The swapAly parsed contract is: {this.state.swapAlyConstructor}</div>
         <div>The ETH price in ALY is: {this.state.priceEthAly}</div>  
         <div>The current allowance is set to: {this.state.allowance}</div>  
         <div className="conteneur">
