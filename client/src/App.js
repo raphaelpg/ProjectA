@@ -5,22 +5,23 @@ import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 import getWeb3 from "./getWeb3";
 import "./App.css";
 import logoAly from "./logoAly.jpg";
+import logoDai from "./logoDai.jpg";
 
 class App extends Component {
   state = { 
     web3: null,
     accounts: null,
+    swapAlyContract: null,
+    swapAlyOwner: null,
+    swapAlyContractAddress: null,
     tokenAlyContract: null,
     tokenAlyAmount: 0,
     tokenAlyOwner: null,
-    tokenAlyOwnerBalance: null,
+    tokenAlyContractAddress: null,
     tokenDaiContract: null,
     tokenDaiAmount: 0,
     tokenDaiOwner: null,
-    tokenDaiOwnerBalance: null,
-    swapAlyContract: null,
-    swapAlyOwner: null,
-    swapAlyConstructor: null,
+    tokenDaiContractAddress: null,
     allowance: 0,
     priceEthAly: 128,
     buyAmount: 0,
@@ -74,7 +75,7 @@ class App extends Component {
             "address":deployedNetwork3.address,
             "symbol":"DAI",
             "decimals":0,
-            "image":logoAly
+            "image":logoDai
           },
         },
         id: 30,
@@ -87,7 +88,10 @@ class App extends Component {
         accounts, 
         swapAlyContract: instanceSwapAly,
         tokenAlyContract: instanceTokenAly,
-        tokenDaiContract: instanceTokenDai
+        tokenDaiContract: instanceTokenDai,
+        swapAlyContractAddress: deployedNetwork1.address,
+        tokenAlyContractAddress: deployedNetwork2.address,
+        tokenDaiContractAddress: deployedNetwork3.address
       }, this.runExample);
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -122,19 +126,6 @@ class App extends Component {
     console.log("retrieve price function started");
     this.setState({priceEthAly: 130});
     console.log("retrieve price function ended");
-  }
-
-  approve = async () => {
-    console.log("approve function started");
-    const { accounts, tokenAlyOwner, tokenAlyContract, allowance, priceEthAly } = this.state;
-    const buyer = '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8';
-    const amount = 1 * priceEthAly;
-    console.log("tokenAly owner: ", tokenAlyOwner);
-    await tokenAlyContract.methods.approve(buyer, amount).send({from: tokenAlyOwner});
-
-    // const allowanceResponse = await tokenAlyContract.methods.allowances(tokenAlyOwner, buyer).call();
-    // this.setState({allowance: allowanceResponse});
-    console.log("approve function ended", this.state.allowance);
   }
 
   buyAly = async (amount) => {
@@ -172,12 +163,34 @@ class App extends Component {
     console.log("buyer balance: ", buyerBalance);
   }
 
-  createAlyTokens = async() => {
-    console.log("create Aly Tokens started");
-    const { web3, accounts } = this.state;
-    // let tokenERC20AlyContract = web3.eth.contract(TokenERC20AlyContract.abi);
-    // let contractERC20 = tokenERC20AlyContract.new({from: accounts[0]});
-    // console.log("Aly Tokens function ended");
+  sellOrder = async (volume, price) => {
+    const { web3, accounts, swapAlyContractAddress, tokenAlyContract } = this.state;
+    await tokenAlyContract.methods.approve(swapAlyContractAddress, volume).send({from: accounts[0]});
+
+    let orderBookBody = document.getElementById('orderBookBody');
+    let newOrder = document.createElement('tr');
+
+    let newOrderPrice = document.createElement('th');
+    newOrderPrice.textContent = price;
+    let newOrderVolume = document.createElement('th');
+    newOrderVolume.textContent = volume;
+    let newOrderTotal = document.createElement('th');
+    newOrderTotal.textContent = price * volume;
+    let buyButton = document.createElement('button');
+    buyButton.type = 'button';
+    buyButton.onclick = this.buyOrder(volume * price);
+    buyButton.textContent = 'Buy';
+
+    newOrder.appendChild(newOrderPrice);
+    newOrder.appendChild(newOrderVolume);
+    newOrder.appendChild(newOrderTotal);
+    newOrder.appendChild(buyButton);
+    orderBookBody.appendChild(newOrder);
+  }
+
+  buyOrder = async (total) => {
+    const { web3, accounts, swapAlyContractAddress, tokenDaiContractAddress } = this.state;
+    await tokenDaiContractAddress.methods.approve(swapAlyContractAddress, total).send({from: accounts[0]});    
   }
 
   render() {
@@ -189,47 +202,41 @@ class App extends Component {
         <h1>Cryptogama</h1>
         <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
         <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
+        <div>The ALY contract address is: {this.state.tokenAlyContractAddress}</div>
         <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
         <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
+        <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
         <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
-        <div>The ETH price in ALY is: {this.state.priceEthAly}</div>  
         <div>The current allowance is set to: {this.state.allowance}</div>  
         <div className="conteneur">
-          <h3>Retrieve price</h3>
-            <button type="button" onClick={(event) => {
-              this.createAlyTokens()
-            }}>Create ALY tokens</button>
-          <h3>Retrieve price</h3>
-            <button type="button" onClick={(event) => {
-              this.retrievePrice()
-            }}>Retrieve price</button>
-          <h3>Approve</h3>
+          <h3>Sell</h3>
             <form onSubmit={(event) => {
                 event.preventDefault()
-                this.approve()
+                const sellVolume = this.volume.value
+                const sellPrice = this.price.value
+                this.sellOrder(sellVolume, sellPrice)
               }}>
-              <div className="champs">
-                <div className="formulaireItems">
-                  <textarea id="toApprove" readOnly></textarea>
-                </div>
+              <div className="fields">
+                Price: 
+                <input id="price" type="text" ref={(input) => { this.price = input }} required/>
+                Volume:
+                <input id="volume" type="text" ref={(input) => { this.volume = input }} required/>
               </div>
-              <button type="submit">Approve</button>
+              <button type="submit">Place sell order</button>
             </form>
-        </div>
-        <div className="conteneur">
-          <h3>Buy ALY tokens</h3>
-            <form onSubmit={(event) => {
-                event.preventDefault()
-                const amountToBuy = this.quantity.value
-                this.buyAly(amountToBuy)
-              }}>
-              <div className="champs">
-                <div className="formulaireItems">Amount to buy: 
-                  <input id="quantity" type="text" ref={(input) => { this.quantity = input }} required/>
-                </div>
-              </div>
-              <button type="submit">Buy</button>
-            </form>
+          <h3>Order Book</h3>
+            <table id="orderBook">
+              <caption>Asks</caption>
+              <thead>
+                <tr>
+                  <th>Price (DAI)</th>
+                  <th>Volume (ALY)</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="orderBookBody">
+              </tbody>
+            </table>
         </div>
       </div>
     );
