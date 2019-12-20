@@ -52,7 +52,7 @@ contract TokenERC20Dai{
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) external returns(bool) {
-        require(allowances[sender][recipient] >= amount, "Insufficient allowance");
+        require(allowances[sender][msg.sender] >= amount, "Insufficient allowance");
         require(_balances[sender] >= amount, "Insufficient balance");
         _balances[sender] -= amount;
         _balances[recipient] += amount;

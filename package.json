@@ -1,0 +1,29 @@
+{
+  "name": "cryptogama",
+  "version": "1.0.0",
+  "description": "dex project",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raphaelpg/ProjectA.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raphaelpg/ProjectA/issues"
+  },
+  "homepage": "https://github.com/raphaelpg/ProjectA#readme",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "truffle": "^5.1.2"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.4"
+  }
+}

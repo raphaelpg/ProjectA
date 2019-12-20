@@ -25,6 +25,7 @@ class App extends Component {
     allowance: 0,
     priceEthAly: 128,
     buyAmount: 0,
+    _orderBook: [],
   };
 
   componentDidMount = async () => {
@@ -103,7 +104,7 @@ class App extends Component {
   };
 
   runExample = async () => {
-    const { accounts, swapAlyContract, tokenAlyContract, tokenDaiContract } = this.state;
+    const { accounts, swapAlyContract, tokenAlyContract, tokenDaiContract, _orderBook } = this.state;
 
     // Get the value from the contract to prove it worked.
     const response2 = await tokenAlyContract.methods.totalSupply().call();
@@ -163,34 +164,58 @@ class App extends Component {
     console.log("buyer balance: ", buyerBalance);
   }
 
-  sellOrder = async (volume, price) => {
-    const { web3, accounts, swapAlyContractAddress, tokenAlyContract } = this.state;
-    await tokenAlyContract.methods.approve(swapAlyContractAddress, volume).send({from: accounts[0]});
+  displayOrderBook = async () => {
+    const { _orderBook } = this.state;
 
     let orderBookBody = document.getElementById('orderBookBody');
-    let newOrder = document.createElement('tr');
+    while (orderBookBody.firstChild){
+      orderBookBody.removeChild(orderBookBody.firstChild);
+    }
+    //Display orders in order book
+    if (_orderBook.length > 0){
+      for (let i=0; i<_orderBook.length; i++){
+        let newOrder = document.createElement('tr');
 
-    let newOrderPrice = document.createElement('th');
-    newOrderPrice.textContent = price;
-    let newOrderVolume = document.createElement('th');
-    newOrderVolume.textContent = volume;
-    let newOrderTotal = document.createElement('th');
-    newOrderTotal.textContent = price * volume;
-    let buyButton = document.createElement('button');
-    buyButton.type = 'button';
-    buyButton.onclick = this.buyOrder(volume * price);
-    buyButton.textContent = 'Buy';
+        let newOrderType = document.createElement('th');
+        newOrderType.textContent = _orderBook[i].type;
+        let newOrderPrice = document.createElement('th');
+        newOrderPrice.textContent = _orderBook[i].price;
+        let newOrderVolume = document.createElement('th');
+        newOrderVolume.textContent = _orderBook[i].volume;
+        let newOrderTotal = document.createElement('th');
+        newOrderTotal.textContent = _orderBook[i].total;
+        let actionButton = document.createElement('button');
+        actionButton.type = 'button';
+        // actionButton.addEventListener('click', this.buyOrder(_orderBook[i].total));
+        if ( _orderBook[i].type == 'bid'){
+          actionButton.textContent = 'Sell';
+        } else {
+          actionButton.textContent = 'Buy';
+        }
 
-    newOrder.appendChild(newOrderPrice);
-    newOrder.appendChild(newOrderVolume);
-    newOrder.appendChild(newOrderTotal);
-    newOrder.appendChild(buyButton);
-    orderBookBody.appendChild(newOrder);
+        newOrder.appendChild(newOrderPrice);
+        newOrder.appendChild(newOrderVolume);
+        newOrder.appendChild(newOrderTotal);
+        newOrder.appendChild(actionButton);
+        orderBookBody.appendChild(newOrder);
+      }
+    }
   }
 
-  buyOrder = async (total) => {
-    const { web3, accounts, swapAlyContractAddress, tokenDaiContractAddress } = this.state;
-    await tokenDaiContractAddress.methods.approve(swapAlyContractAddress, total).send({from: accounts[0]});    
+  buyOrder = async (_volume, _price) => {
+    const { web3, accounts, swapAlyContractAddress, tokenDaiContract, _orderBook } = this.state;
+    await tokenDaiContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
+
+    _orderBook.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    this.displayOrderBook(); 
+  }
+
+  sellOrder = async (_volume, _price) => {
+    const { web3, accounts, swapAlyContractAddress, tokenAlyContract, _orderBook } = this.state;
+    await tokenAlyContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
+
+    _orderBook.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    this.displayOrderBook();
   }
 
   render() {
@@ -209,18 +234,33 @@ class App extends Component {
         <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
         <div>The current allowance is set to: {this.state.allowance}</div>  
         <div className="conteneur">
+          <h3>Buy</h3>
+            <form onSubmit={(event) => {
+                event.preventDefault()
+                const buyVolume = this.volumeBuy.value
+                const buyPrice = this.priceBuy.value
+                this.buyOrder(buyVolume, buyPrice)
+              }}>
+              <div className="fields">
+                Price: 
+                <input id="priceBuy" type="text" ref={(input) => { this.priceBuy = input }} required/>
+                Volume:
+                <input id="volumeBuy" type="text" ref={(input) => { this.volumeBuy = input }} required/>
+              </div>
+              <button type="submit">Place buy order</button>
+            </form>
           <h3>Sell</h3>
             <form onSubmit={(event) => {
                 event.preventDefault()
-                const sellVolume = this.volume.value
-                const sellPrice = this.price.value
+                const sellVolume = this.volumeSell.value
+                const sellPrice = this.priceSell.value
                 this.sellOrder(sellVolume, sellPrice)
               }}>
               <div className="fields">
                 Price: 
-                <input id="price" type="text" ref={(input) => { this.price = input }} required/>
+                <input id="priceSell" type="text" ref={(input) => { this.priceSell = input }} required/>
                 Volume:
-                <input id="volume" type="text" ref={(input) => { this.volume = input }} required/>
+                <input id="volumeSell" type="text" ref={(input) => { this.volumeSell = input }} required/>
               </div>
               <button type="submit">Place sell order</button>
             </form>
@@ -229,6 +269,7 @@ class App extends Component {
               <caption>Asks</caption>
               <thead>
                 <tr>
+                  <th>Type</th>
                   <th>Price (DAI)</th>
                   <th>Volume (ALY)</th>
                   <th>Total</th>
