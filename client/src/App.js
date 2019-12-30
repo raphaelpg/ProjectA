@@ -1,8 +1,11 @@
+//Import modules
 import React, { Component } from "react";
+import getWeb3 from "./getWeb3";
+//Import dapp contract and tokens contracts
 import SwapAlyContract from "./contracts/SwapAly.json";
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
-import getWeb3 from "./getWeb3";
+//Import style and tokens logo
 import "./App.css";
 import logoAly from "./logoAly.jpg";
 import logoDai from "./logoDai.jpg";
@@ -25,9 +28,11 @@ class App extends Component {
     allowance: 0,
     priceEthAly: 128,
     buyAmount: 0,
-    _orderBook: [],
+    tokenAddresses: null,
+    _orderBookALYDAI: [],
   };
 
+  //Dapp set up
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
@@ -36,7 +41,7 @@ class App extends Component {
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
 
-      // Get the contract instance.
+      // Get contracts instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork1 = SwapAlyContract.networks[networkId];
       const deployedNetwork2 = TokenERC20AlyContract.networks[networkId];
@@ -54,6 +59,10 @@ class App extends Component {
         deployedNetwork3 && deployedNetwork3.address,
       );
 
+      //Mapping token addresses
+      let tokenAddresses = new Map();
+
+      //Maping ALY
       web3.currentProvider.sendAsync({
         method: 'metamask_watchAsset',
         params: {
@@ -67,7 +76,9 @@ class App extends Component {
         },
         id: 20,
       }, console.log)
+      tokenAddresses.set("ALY", deployedNetwork2.address);
 
+      //Mapping DAI
       web3.currentProvider.sendAsync({
         method: 'metamask_watchAsset',
         params: {
@@ -81,9 +92,9 @@ class App extends Component {
         },
         id: 30,
       }, console.log)
+      tokenAddresses.set("DAI", deployedNetwork3.address);
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
+      // Set web3, accounts, and contract to the state
       this.setState({ 
         web3, 
         accounts, 
@@ -92,19 +103,34 @@ class App extends Component {
         tokenDaiContract: instanceTokenDai,
         swapAlyContractAddress: deployedNetwork1.address,
         tokenAlyContractAddress: deployedNetwork2.address,
-        tokenDaiContractAddress: deployedNetwork3.address
-      }, this.runExample);
+        tokenDaiContractAddress: deployedNetwork3.address,
+        tokenAddresses: tokenAddresses
+      })
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
       );
       console.error(error);
-    }
+    };
+    this.runOrderBookFillingScript();
   };
 
-  runExample = async () => {
-    const { accounts, swapAlyContract, tokenAlyContract, tokenDaiContract, _orderBook } = this.state;
+  //Fill order book for example purpose
+  runOrderBookFillingScript = async () => {
+    const { swapAlyContract, tokenAlyContract, tokenDaiContract, tokenAddresses, _orderBookALYDAI } = this.state;
+
+    for(let i=0; i<20; i++){
+      let _price = 99;
+      let _volume = 10;
+      _orderBookALYDAI.push({'type': 'bid', 'price': _price-i, 'volume': _volume+(10*i), 'total': (_price-i) * (_volume+(10*i))});
+    }
+
+    for(let i=0; i<20; i++){
+      let _price = 101;
+      let _volume = 10;
+      _orderBookALYDAI.push({'type': 'ask', 'price': _price+i, 'volume': _volume+(10*i), 'total': (_price+i) * (_volume+(10*i))});
+    }
 
     // Get the value from the contract to prove it worked.
     const response2 = await tokenAlyContract.methods.totalSupply().call();
@@ -121,6 +147,14 @@ class App extends Component {
       tokenDaiOwner: response5,
       swapAlyOwner: response6
     });
+
+    //For each token pair, creates an order book
+    if(tokenAddresses.size > 1){
+
+    }
+
+    //Display order book
+    this.displayOrderBook();
   };
 
   retrievePrice = async () => {
@@ -165,56 +199,59 @@ class App extends Component {
   }
 
   displayOrderBook = async () => {
-    const { _orderBook } = this.state;
+    const { _orderBookALYDAI } = this.state;
 
+    //Sort array
+    function sortFunction(a, b){
+      if (a.price === b.price) {
+          return 0;
+      } else {
+          return (a.price > b.price) ? -1 : 1;
+      }
+    }
+    _orderBookALYDAI.sort(sortFunction);
+
+    //Reset DOM order book
     let orderBookBody = document.getElementById('orderBookBody');
     while (orderBookBody.firstChild){
       orderBookBody.removeChild(orderBookBody.firstChild);
     }
-    //Display orders in order book
-    if (_orderBook.length > 0){
-      for (let i=0; i<_orderBook.length; i++){
+
+    //Insert orders in DOM
+    if (_orderBookALYDAI.length > 0){
+      for (let i=0; i<_orderBookALYDAI.length; i++){
         let newOrder = document.createElement('tr');
 
         let newOrderType = document.createElement('th');
-        newOrderType.textContent = _orderBook[i].type;
+        newOrderType.textContent = _orderBookALYDAI[i].type;
         let newOrderPrice = document.createElement('th');
-        newOrderPrice.textContent = _orderBook[i].price;
+        newOrderPrice.textContent = _orderBookALYDAI[i].price;
         let newOrderVolume = document.createElement('th');
-        newOrderVolume.textContent = _orderBook[i].volume;
+        newOrderVolume.textContent = _orderBookALYDAI[i].volume;
         let newOrderTotal = document.createElement('th');
-        newOrderTotal.textContent = _orderBook[i].total;
-        let actionButton = document.createElement('button');
-        actionButton.type = 'button';
-        // actionButton.addEventListener('click', this.buyOrder(_orderBook[i].total));
-        if ( _orderBook[i].type == 'bid'){
-          actionButton.textContent = 'Sell';
-        } else {
-          actionButton.textContent = 'Buy';
-        }
+        newOrderTotal.textContent = _orderBookALYDAI[i].total;
 
         newOrder.appendChild(newOrderPrice);
         newOrder.appendChild(newOrderVolume);
         newOrder.appendChild(newOrderTotal);
-        newOrder.appendChild(actionButton);
         orderBookBody.appendChild(newOrder);
       }
     }
   }
 
   buyOrder = async (_volume, _price) => {
-    const { web3, accounts, swapAlyContractAddress, tokenDaiContract, _orderBook } = this.state;
+    const { accounts, swapAlyContractAddress, tokenDaiContract, _orderBookALYDAI } = this.state;
     await tokenDaiContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
 
-    _orderBook.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    _orderBookALYDAI.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
     this.displayOrderBook(); 
   }
 
   sellOrder = async (_volume, _price) => {
-    const { web3, accounts, swapAlyContractAddress, tokenAlyContract, _orderBook } = this.state;
+    const { accounts, swapAlyContractAddress, tokenAlyContract, _orderBookALYDAI } = this.state;
     await tokenAlyContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
 
-    _orderBook.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    _orderBookALYDAI.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
     this.displayOrderBook();
   }
 
@@ -234,6 +271,15 @@ class App extends Component {
         <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
         <div>The current allowance is set to: {this.state.allowance}</div>  
         <div className="conteneur">
+          <h3>Select token pair</h3>
+            <select name="startToken" id="startToken">
+              <option value="ALY">ALY</option>
+              <option value="DAI">DAI</option>
+            </select>
+            <select name="endToken" id="endToken">
+              <option value="ALY">ALY</option>
+              <option value="DAI">DAI</option>
+            </select>
           <h3>Buy</h3>
             <form onSubmit={(event) => {
                 event.preventDefault()
@@ -266,10 +312,8 @@ class App extends Component {
             </form>
           <h3>Order Book</h3>
             <table id="orderBook">
-              <caption>Asks</caption>
               <thead>
                 <tr>
-                  <th>Type</th>
                   <th>Price (DAI)</th>
                   <th>Volume (ALY)</th>
                   <th>Total</th>
