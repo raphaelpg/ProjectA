@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
   "repository": {
     "type": "git",
@@ -21,9 +23,12 @@
   "homepage": "https://github.com/raphaelpg/ProjectA#readme",
   "dependencies": {
     "chai": "^4.2.0",
-    "truffle": "^5.1.2"
+    "truffle": "^5.1.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
   },
   "devDependencies": {
-    "@openzeppelin/test-helpers": "^0.5.4"
+    "@openzeppelin/test-helpers": "^0.5.4",
+    "concurrently": "^4.0.1"
   }
 }
