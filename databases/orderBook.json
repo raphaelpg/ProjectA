@@ -1,0 +1,20 @@
+{
+  "DAIALY": {
+    "asks": [
+      {
+        "price": 15,
+        "volume": 150,
+        "total": 2250,
+        "seller": "0x9b1072e802cA3E8e54F9D867E6767fE557334eB8"
+      }
+    ],
+    "bids": [
+      {
+        "price": 15,
+        "volume": 10,
+        "total": 150,
+        "buyer": "0x18eaca6735c3D935cdEA3f7794b6C8B4B9654e0D"
+      }
+    ]
+  }
+}
