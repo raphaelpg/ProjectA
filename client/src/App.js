@@ -29,8 +29,20 @@ class App extends Component {
     priceEthAly: 128,
     buyAmount: 0,
     tokenAddresses: null,
-    _orderBookALYDAI: [],
-  };
+    _orderBookBids: [],
+    _orderBookAsks: [],
+    tradeHistory: [],
+    serverStatus: '',
+    post: '',
+    responseToPost: '',
+    pushedOrder: '',
+    bestSellerPrice: 0,
+    bestSellerVolume: 0,
+    bestSellerAddress: '',
+    bestBuyerPrice: 0,
+    bestBuyerVolume: 0,
+    bestBuyerAddress: '',
+  }
 
   //Dapp set up
   componentDidMount = async () => {
@@ -113,23 +125,34 @@ class App extends Component {
       );
       console.error(error);
     };
-    this.runOrderBookFillingScript();
-  };
+    //this.runOrderBookFillingScript();
+
+    //Check server status
+    this.setState({serverStatus: "disconnected"});
+    this.callApi()
+      .then(res => this.setState({ serverStatus: res.express }))
+      .catch(err => console.log(err));
+
+    //Display data
+    this.displayOrderBook();
+    this.displayTradeHistory();
+  }
+
 
   //Fill order book for example purpose
   runOrderBookFillingScript = async () => {
-    const { swapAlyContract, tokenAlyContract, tokenDaiContract, tokenAddresses, _orderBookALYDAI } = this.state;
+    const { swapAlyContract, tokenAlyContract, tokenDaiContract, tokenAddresses, _orderBookBids } = this.state;
 
     for(let i=0; i<20; i++){
       let _price = 99;
       let _volume = 10;
-      _orderBookALYDAI.push({'type': 'bid', 'price': _price-i, 'volume': _volume+(10*i), 'total': (_price-i) * (_volume+(10*i))});
+      _orderBookBids.push({'type': 'bid', 'price': _price-i, 'volume': _volume+(10*i), 'total': (_price-i) * (_volume+(10*i))});
     }
 
     for(let i=0; i<20; i++){
       let _price = 101;
       let _volume = 10;
-      _orderBookALYDAI.push({'type': 'ask', 'price': _price+i, 'volume': _volume+(10*i), 'total': (_price+i) * (_volume+(10*i))});
+      _orderBookBids.push({'type': 'ask', 'price': _price+i, 'volume': _volume+(10*i), 'total': (_price+i) * (_volume+(10*i))});
     }
 
     // Get the value from the contract to prove it worked.
@@ -155,7 +178,185 @@ class App extends Component {
 
     //Display order book
     this.displayOrderBook();
-  };
+  }
+
+
+  callApi = async () => {
+    const response = await fetch('/api/hello');
+    const serverConnect = await response.json();
+    if (response.status !== 200) throw Error(serverConnect.message);
+    
+    return serverConnect;
+  }
+
+  displayOrderBook = async () => {
+    let { _orderBookBids, _orderBookAsks } = this.state;
+
+    //Get orderbook
+    const orderBookResponse = await fetch('/api/orderBook');
+    const orderBookEntire = await orderBookResponse.json();
+    if (orderBookResponse.status !== 200) throw Error(orderBookEntire.message);
+    
+    //Fill _orderBookBids & _orderBooksAsks
+    _orderBookBids = orderBookEntire['orderBook']['DAIALY']['bids'];
+    _orderBookAsks = orderBookEntire['orderBook']['DAIALY']['asks'];
+
+    //Sort array
+    function sortDecrease(a, b){
+      if (a.price === b.price) {
+          return 0;
+      } else {
+          return (a.price > b.price) ? -1 : 1;
+      }
+    }
+
+    function sortIncrease(a, b){
+      if (a.price === b.price) {
+          return 0;
+      } else {
+          return (a.price < b.price) ? -1 : 1;
+      }
+    }
+
+    _orderBookBids.sort(sortDecrease);
+    _orderBookAsks.sort(sortIncrease);
+
+    //Reset DOM order book
+    let orderBookBidsBody = document.getElementById('orderBookBidsBody');
+    while (orderBookBidsBody.firstChild){
+      orderBookBidsBody.removeChild(orderBookBidsBody.firstChild);
+    }
+
+    let orderBookAsksBody = document.getElementById('orderBookAsksBody');
+    while (orderBookAsksBody.firstChild){
+      orderBookAsksBody.removeChild(orderBookAsksBody.firstChild);
+    }
+
+    //Insert orders in DOM
+    if (_orderBookBids.length > 0){
+      for (let i=0; i<15; i++){
+        if (_orderBookBids[i]){
+          let newOrder = document.createElement('tr');
+          newOrder.className += "newOrder";
+
+          let newOrderType = document.createElement('th');
+          newOrderType.textContent = _orderBookBids[i].type;
+          let newOrderPrice = document.createElement('th');
+          newOrderPrice.textContent = _orderBookBids[i].price.toFixed(2);
+          newOrderPrice.className += "newOrderPriceBid";
+          let newOrderVolume = document.createElement('th');
+          newOrderVolume.textContent = _orderBookBids[i].volume.toFixed(2);
+          let newOrderTotal = document.createElement('th');
+          newOrderTotal.textContent = _orderBookBids[i].total.toFixed(2);
+
+          newOrder.appendChild(newOrderPrice);
+          newOrder.appendChild(newOrderVolume);
+          newOrder.appendChild(newOrderTotal);
+          orderBookBidsBody.appendChild(newOrder);
+        }
+      }
+    }
+
+    if (_orderBookAsks.length > 0){
+      for (let i=0; i<15; i++){
+        if (_orderBookAsks[i]){
+          let newOrder = document.createElement('tr');
+          newOrder.className += "newOrder";
+
+          let newOrderType = document.createElement('th');
+          newOrderType.textContent = _orderBookAsks[i].type;
+          let newOrderPrice = document.createElement('th');
+          newOrderPrice.textContent = _orderBookAsks[i].price.toFixed(2);
+          newOrderPrice.className += "newOrderPriceAsk";
+          let newOrderVolume = document.createElement('th');
+          newOrderVolume.textContent = _orderBookAsks[i].volume.toFixed(2);
+          let newOrderTotal = document.createElement('th');
+          newOrderTotal.textContent = _orderBookAsks[i].total.toFixed(2);
+
+          newOrder.appendChild(newOrderPrice);
+          newOrder.appendChild(newOrderVolume);
+          newOrder.appendChild(newOrderTotal);
+          orderBookAsksBody.insertBefore(newOrder, orderBookAsksBody.firstChild);
+        }
+      }
+    }
+
+    if (_orderBookAsks[0]){
+      this.setState({ bestSellerPrice: _orderBookAsks[0].price, bestSellerVolume: _orderBookAsks[0].volume, bestSellerAddress: _orderBookAsks[0].seller });
+    }
+
+    if (_orderBookBids[0]){
+      this.setState({ bestBuyerPrice: _orderBookBids[0].buyer, bestBuyerVolume: _orderBookBids[0].volume, bestBuyerAddress: _orderBookBids[0].buyer });
+    }
+  }
+
+  displayTradeHistory = async () => {
+    let { tradeHistory } = this.state;
+
+    //Get trade history
+    const tradeHistoryResponse = await fetch('/api/tradeHistory');
+    const tradeHistoryEntire = await tradeHistoryResponse.json();
+    if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
+
+    //Fill tradeHistory
+    console.log(tradeHistoryEntire);
+    tradeHistory = tradeHistoryEntire['tradeHistory']['trades'];
+
+    //Sort array
+    function sortDecreaseTime(a, b){
+      if (a.time === b.time) {
+          return 0;
+      } else {
+          return (a.time > b.time) ? -1 : 1;
+      }
+    }
+
+    tradeHistory.sort(sortDecreaseTime);
+
+    //Reset DOM order book
+    let tradeHistoryBody = document.getElementById('tradeHistoryBody');
+    while (tradeHistoryBody.firstChild){
+      tradeHistoryBody.removeChild(tradeHistoryBody.firstChild);
+    }
+
+    //Insert trades in DOM
+    if (tradeHistory.length > 0){
+      for (let i=0; i<31; i++){
+        if (tradeHistory[i]){
+          let newTrade = document.createElement('tr');
+          newTrade.className += "newTrade";
+
+          let newTradePrice = document.createElement('th');
+          newTradePrice.textContent = tradeHistory[i].price.toFixed(2);
+          newTradePrice.className += "newTradePriceBid";
+          let newTradeVolume = document.createElement('th');
+          newTradeVolume.textContent = tradeHistory[i].volume.toFixed(2);
+          let newTradeTime = document.createElement('th');
+          newTradeTime.textContent = tradeHistory[i].time;
+
+          newTrade.appendChild(newTradePrice);
+          newTrade.appendChild(newTradeVolume);
+          newTrade.appendChild(newTradeTime);
+          tradeHistoryBody.appendChild(newTrade);
+        }
+      }
+    }
+  }
+
+  
+  handleSubmit = async e => {
+    e.preventDefault();
+    const response = await fetch('/api/world', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post: this.state.post }),
+    });
+    const body = await response.text();
+    
+    this.setState({ responseToPost: body });
+  }
 
   retrievePrice = async () => {
     console.log("retrieve price function started");
@@ -163,95 +364,82 @@ class App extends Component {
     console.log("retrieve price function ended");
   }
 
-  buyAly = async (amount) => {
-    console.log("buyAly function started");
-    const { web3, accounts, tokenAlyContract, swapAlyContract, tokenAlyOwner, priceEthAly } = this.state;
-    const buyer = '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8';
-    const buyerBalance = await web3.eth.getBalance(accounts[0]);
-    const cost = (amount / priceEthAly) * 10**18;
+  buyToken = async (volume) => {
+    const { accounts, swapAlyContract, swapAlyContractAddress, tokenAlyContract, tokenAlyContractAddress, tokenDaiContract, tokenDaiContractAddress, bestSellerPrice } = this.state;
+    
+    //approve prix * volume
+    let volumeToApprove = bestSellerPrice * volume;
+    await tokenDaiContract.methods.approve(swapAlyContractAddress, volumeToApprove).send({from: accounts[0]});
 
-    if(buyerBalance >= cost){
-      console.log("enough funds");
-      console.log("accounts[0] ",accounts[0]);
-      console.log("tokenAlyOwner ", tokenAlyOwner);
-      await swapAlyContract.methods.approve(buyer, amount).send({from: accounts[0]});
-      console.log("approve ok");
-      await swapAlyContract.methods.buyAly(amount, priceEthAly).send({from: buyer, value: cost });
-      console.log("buyAly ok");
-      console.log("accounts[0] ",accounts[0]);
-      await swapAlyContract.methods.transferFrom(accounts[0], buyer, amount).send({from: accounts[0]});
-      console.log("transferFrom ok");
-    } else {
-      console.log("not enough funds");
-    }
-      console.log("buyAly function started4");
+    this.state.pushedOrder = {'type': 'bid', 'price': bestSellerPrice, 'volume': volume, 'total': bestSellerPrice * volume, 'buyer': accounts[0]};
 
-    //const buyerBalance2 = web3.fromWei(web3.eth.getBalance(web3.eth.accounts[0]));
-    // if (buyerBalance >= cost){
-    //   approve
-    //   transfer ETH to contract
-    //   transfer token to buyer
-    // }
+    const response = await fetch('/api/world', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post: this.state.pushedOrder }),
+    });
+    const body = await response.text();
 
-    //await tokenAlyContract.methods.transfer(buyer, amount).send({from: accounts[0]});
-    console.log('hello');
-    console.log("buyer balance: ", buyerBalance);
+    this.setState({ responseToPost: body });
+
+    this.displayOrderBook(); 
   }
 
-  displayOrderBook = async () => {
-    const { _orderBookALYDAI } = this.state;
+  checkOrders = async () => {
+    const { accounts, swapAlyContract, tokenAlyContractAddress, tokenDaiContractAddress, bestSellerAddress, bestSellerPrice, bestSellerVolume, bestBuyerAddress, bestBuyerVolume } = this.state;
+    let volumeToTransfer = bestBuyerVolume * bestSellerPrice;
 
-    //Sort array
-    function sortFunction(a, b){
-      if (a.price === b.price) {
-          return 0;
-      } else {
-          return (a.price > b.price) ? -1 : 1;
-      }
-    }
-    _orderBookALYDAI.sort(sortFunction);
-
-    //Reset DOM order book
-    let orderBookBody = document.getElementById('orderBookBody');
-    while (orderBookBody.firstChild){
-      orderBookBody.removeChild(orderBookBody.firstChild);
-    }
-
-    //Insert orders in DOM
-    if (_orderBookALYDAI.length > 0){
-      for (let i=0; i<_orderBookALYDAI.length; i++){
-        let newOrder = document.createElement('tr');
-
-        let newOrderType = document.createElement('th');
-        newOrderType.textContent = _orderBookALYDAI[i].type;
-        let newOrderPrice = document.createElement('th');
-        newOrderPrice.textContent = _orderBookALYDAI[i].price;
-        let newOrderVolume = document.createElement('th');
-        newOrderVolume.textContent = _orderBookALYDAI[i].volume;
-        let newOrderTotal = document.createElement('th');
-        newOrderTotal.textContent = _orderBookALYDAI[i].total;
-
-        newOrder.appendChild(newOrderPrice);
-        newOrder.appendChild(newOrderVolume);
-        newOrder.appendChild(newOrderTotal);
-        orderBookBody.appendChild(newOrder);
-      }
-    }
+    //swap
+    console.log("swap started");
+    await swapAlyContract.methods.swapToken(bestSellerAddress, tokenAlyContractAddress, bestBuyerVolume, bestBuyerAddress, tokenDaiContractAddress, volumeToTransfer).send({from: accounts[0]});
+    console.log("swap ended");
+    //maj orderbook
+    //maj decrease approve seller
+    //maj decrease approve buyer
+    //maj tradeHistory
   }
 
   buyOrder = async (_volume, _price) => {
-    const { accounts, swapAlyContractAddress, tokenDaiContract, _orderBookALYDAI } = this.state;
+    const { accounts, swapAlyContractAddress, tokenDaiContract, _orderBookBids } = this.state;
     await tokenDaiContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
 
-    _orderBookALYDAI.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0]};
+
+    const response = await fetch('/api/world', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post: this.state.pushedOrder }),
+    });
+    const body = await response.text();
+    
+    this.setState({ responseToPost: body });
+
+    //_orderBookBids.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
     this.displayOrderBook(); 
   }
 
   sellOrder = async (_volume, _price) => {
-    const { accounts, swapAlyContractAddress, tokenAlyContract, _orderBookALYDAI } = this.state;
+    const { accounts, swapAlyContractAddress, tokenAlyContract, _orderBookBids } = this.state;
     await tokenAlyContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
 
-    _orderBookALYDAI.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
+    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0]};
+
+    const response = await fetch('/api/world', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post: this.state.pushedOrder }),
+    });
+    const body = await response.text();
+    
+    this.setState({ responseToPost: body });
+
+    //_orderBookBids.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
     this.displayOrderBook();
   }
 
@@ -261,67 +449,152 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Cryptogama</h1>
-        <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
-        <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
-        <div>The ALY contract address is: {this.state.tokenAlyContractAddress}</div>
-        <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
-        <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
-        <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
-        <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
-        <div>The current allowance is set to: {this.state.allowance}</div>  
-        <div className="conteneur">
-          <h3>Select token pair</h3>
-            <select name="startToken" id="startToken">
-              <option value="ALY">ALY</option>
-              <option value="DAI">DAI</option>
-            </select>
-            <select name="endToken" id="endToken">
-              <option value="ALY">ALY</option>
-              <option value="DAI">DAI</option>
-            </select>
-          <h3>Buy</h3>
-            <form onSubmit={(event) => {
-                event.preventDefault()
-                const buyVolume = this.volumeBuy.value
-                const buyPrice = this.priceBuy.value
-                this.buyOrder(buyVolume, buyPrice)
-              }}>
-              <div className="fields">
-                Price: 
-                <input id="priceBuy" type="text" ref={(input) => { this.priceBuy = input }} required/>
-                Volume:
-                <input id="volumeBuy" type="text" ref={(input) => { this.volumeBuy = input }} required/>
+        <header className="Header">
+          <h1 className="Title">Cryptogama</h1>
+          {/*<div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
+          <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
+          <div>The ALY contract address is: {this.state.tokenAlyContractAddress}</div>
+          <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
+          <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
+          <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
+          <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
+          <div>The current allowance is set to: {this.state.allowance}</div>*/}
+          <div className="description">Swap and trade ERC20 tokens</div>
+          <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
+        </header>      
+        {/*<form onSubmit={this.handleSubmit}>
+          <p>
+            <strong>Post to Server:</strong>
+          </p>
+          <input
+            type="text"
+            value={this.state.post}
+            onChange={e => this.setState({ post: e.target.value })}
+          />
+          <button type="submit">Submit</button>
+        </form>
+        <p>{this.state.responseToPost}</p>*/}
+
+        <div className="tokenSelector">
+          <h2>Select token pair</h2>
+          <select name="startToken" id="startToken">
+            <option value="ALY">ALY</option>
+            <option value="DAI">DAI</option>
+          </select>
+          <select name="endToken" id="endToken">
+            <option value="ALY">ALY</option>
+            <option value="DAI">DAI</option>
+          </select>
+        </div>
+
+        <div className="Main">
+          <div className="MainLeft">
+            <div className="tradeHistoryTitle">Trade history</div>
+            <table id="tradeHistoryTable">
+                <tbody id="tradeHistoryBody">
+                </tbody>
+              </table>
+          </div>
+
+          <div className="MainCenter">
+            <div className="graph"></div>
+            <div className="buySellToken">
+              <div className="buyToken">
+                <div className="buyTokenTitle">Buy</div>
+                <form onSubmit={(event) => {
+                    event.preventDefault()
+                    const buyVolume = this.volumeBuy.value
+                    const buyPrice = this.priceBuy.value
+                    this.buyOrder(buyVolume, buyPrice)
+                  }}>
+                  <div className="fields">
+                    <div className="buyFields">
+                      <label for="priceBuy">Price:</label>
+                      <input className="inputFields" id="priceBuy" type="text" ref={(input) => { this.priceBuy = input }} required/>
+                    </div>
+                    <div className="buyFields">
+                      <label for="volumeBuy">Volume:</label>
+                      <input className="inputFields" id="volumeBuy" type="text" ref={(input) => { this.volumeBuy = input }} required/>
+                    </div>
+                  </div>
+                  <div className="buyFields">
+                    <label for="totalBuy">Total:</label>
+                    <input className="inputFields" id="totalBuy" type="text" ref={(input) => { this.totalBuy = input }} />
+                  </div>
+                  <button className="buyTokenButton" type="submit">Buy</button>
+                </form>
               </div>
-              <button type="submit">Place buy order</button>
-            </form>
-          <h3>Sell</h3>
-            <form onSubmit={(event) => {
-                event.preventDefault()
-                const sellVolume = this.volumeSell.value
-                const sellPrice = this.priceSell.value
-                this.sellOrder(sellVolume, sellPrice)
-              }}>
-              <div className="fields">
-                Price: 
-                <input id="priceSell" type="text" ref={(input) => { this.priceSell = input }} required/>
-                Volume:
-                <input id="volumeSell" type="text" ref={(input) => { this.volumeSell = input }} required/>
+              <div className="buyToken">
+                <div className="buyTokenTitle">Sell</div>
+                <form onSubmit={(event) => {
+                    event.preventDefault()
+                    const sellVolume = this.volumeSell.value
+                    const sellPrice = this.priceSell.value
+                    this.sellOrder(sellVolume, sellPrice)
+                  }}>
+                  <div className="fields">
+                    <div className="buyFields">
+                      <label for="priceSell">Price:</label>
+                      <input className="inputFields" id="priceSell" type="text" ref={(input) => { this.priceSell = input }} required/>
+                    </div>
+                    <div className="buyFields">
+                      <label for="volumeSell">Volume:</label>
+                      <input className="inputFields" id="volumeSell" type="text" ref={(input) => { this.volumeSell = input }} required/>
+                    </div>
+                  </div>
+                  <div className="buyFields">
+                    <label for="totalSell">Total:</label>
+                    <input className="inputFields" id="totalSell" type="text" ref={(input) => { this.totalBuy = input }} />
+                  </div>
+                  <button className="buyTokenButton" type="submit">Sell</button>
+                </form>
               </div>
-              <button type="submit">Place sell order</button>
-            </form>
-          <h3>Order Book</h3>
-            <table id="orderBook">
-              <thead>
-                <tr>
-                  <th>Price (DAI)</th>
-                  <th>Volume (ALY)</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody id="orderBookBody">
-              </tbody>
-            </table>
+            </div>
+            <div>
+              <form onSubmit={(event) => {
+                  event.preventDefault()
+                  const volumeToBuy = this.volumeToBuy.value
+                  this.buyToken(volumeToBuy)
+                }}>
+                <button type="submit">Buy</button>
+                <div className="fields">
+                  Volume:
+                  <input id="volumeToBuy" type="text" ref={(input) => { this.volumeToBuy = input }} required/>
+                </div>
+              </form>
+            </div>
+            <div className="checkOrders">
+              <h2>Check orders</h2>
+              <form onSubmit={(event) => {
+                  event.preventDefault()
+                  this.checkOrders()
+                }}>
+                <button type="submit">Swap</button>  
+              </form>
+            </div>
+            
+          
+          </div>
+
+          <div className="MainRight">
+            <div className="sectionOrderBook">
+              <div className="orderBookTitles">
+                <div>Price (DAI)</div>
+                <div>Volume (ALY)</div>
+                <div>Total (DAI)</div>
+              </div>
+              <table id="asks">
+                <tbody id="orderBookAsksBody">
+                </tbody>
+              </table>
+              <p className="orderBookPrice">{this.state.bestSellerPrice.toFixed(2)} DAI (Current price)</p>
+              <table id="bids">
+                <tbody id="orderBookBidsBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
     );

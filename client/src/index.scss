@@ -1,17 +1,20 @@
 $orangeGama: darkorange;
+$darkBackground: #1D1D1D;
+$secondGrey: #353535;
+$fontColor: #ADA2B0;
 
 body {
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 12px;
   margin: 0;
 	padding: 0;
 	width: 100%;
-  background-color: #393939;
-  color: $orangeGama;
+  background-color: #262626;
+  color: $fontColor;
 }
 
 code {
@@ -19,6 +22,158 @@ code {
     monospace;
 }
 
-table{
+.Header {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.Title {
+  margin-top: 1%;
+  margin-left: 2%;
+  color: $orangeGama;
+  font-size: 36px;
+}
+
+.description {
+  font-size: medium;
+  margin: auto auto auto 25px;
+}
+
+.ServerStatus {
+  margin-right: 2%;
+  margin-top: 2%;
+}
+
+.tokenSelector {
+  background-color: $secondGrey;
+  margin-bottom: 10px;
+}
+
+.Main {
+  display: flex;
+  justify-content: center;
+}
+
+.MainLeft{
+  width: 300px;
+  border: 1px solid $secondGrey; 
+}
+
+.tradeHistoryTitle{
+  font-size: 12px;
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 4px;
+  margin-left: 5px;
+}
+
+#tradeHistoryTable th{
+  vertical-align: baseline;
+  width: 40px;
+}
+
+.MainCenter{
+  width: 40%;
+  border: 1px solid $secondGrey;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.graph{
+  height: 300px;
+}
+
+.buySellToken{
+  display: flex;
+  justify-content: space-evenly;
+  border-top: 1px solid $secondGrey;
+  border-bottom: 1px solid $secondGrey;
+}
+
+.buyToken{
+  padding: 3%;
+  width: -webkit-fill-available;
+}
+
+.buyTokenTitle{
+  text-align: left;
+  font-size: medium;
+  margin-bottom: 10px;
+}
+
+.buyFields{
+  display: flex;
+  justify-content: space-between;
+}
+
+.inputFields{
+  width: 100px;
+  background-color: $darkBackground;
+  border: 1px solid $secondGrey;
+}
+
+.buyTokenButton{
+  margin-top: 10px;
+  background-color: $darkBackground;
+  border: 1px solid $secondGrey;
+  color: $fontColor;
+}
+
+.MainRight{
+  width: 300px;
+  border: 1px solid $secondGrey;
+}
+
+.sectionOrderBook{
+  display: flex;
+  flex-direction: column;
+}
+
+.orderBookTitles{
+  display: inline-flex;
+  justify-content: space-around;
+  margin-top: 5px;
+  margin-bottom: 4px;
+}
+
+table {
   margin: auto;
+  font-weight: normal;
+  width: -webkit-fill-available;
+  height: 245px;
+  background-color: $darkBackground;
+}
+
+table th{
+  font-weight: normal;
+  width: 135px;
+}
+
+#asks th{
+  vertical-align: bottom;
+}
+
+#bids th{
+  vertical-align: baseline;
+}
+
+.newOrder{
+
+}
+
+.newOrderPriceAsk{
+  color: indianred;
+}
+
+.orderBookPrice{
+  font-size: large;
+  text-align: left;
+  margin-left: 15px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.newOrderPriceBid{
+  color: lawngreen;
 }

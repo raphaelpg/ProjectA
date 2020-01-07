@@ -10,13 +10,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Just a test
 app.get('/api/hello', (req, res) => {
-  res.send({ express: 'Server connected' });
+  res.send({ express: 'connected' });
+});
+
+//Send order book to be displayed in client
+app.get('/api/tradeHistory', (req, res) => {
+	let tradeHistory = '';
+  fs.readFile('./databases/trades.json', 'utf8', function readFileCallback(err, data){
+  	if (err){
+      console.log(err);
+    } else {
+	    tradeHistory = JSON.parse(data);
+	  }
+  	res.json({ tradeHistory });
+  });
 });
 
 //Send order book to be displayed in client
 app.get('/api/orderBook', (req, res) => {
 	let orderBook = '';
-  fs.readFile('./orderBooks/orderBook.json', 'utf8', function readFileCallback(err, data){
+  fs.readFile('./databases/orderBook.json', 'utf8', function readFileCallback(err, data){
   	if (err){
       console.log(err);
     } else {
@@ -31,20 +44,20 @@ app.post('/api/world', (req, res) => {
   console.log(req.body);
 	console.log(req.body.post.price);
 
-  fs.readFile('./orderBooks/orderBook.json', 'utf8', function readFileCallback(err, data){
+  fs.readFile('./databases/orderBook.json', 'utf8', function readFileCallback(err, data){
     if (err){
       console.log(err);
     } else {
 	    let orderBook = JSON.parse(data);
 
 	    if (req.body.post.type === "bid") {
-	    	orderBook.DAIALY.bids.push({price: parseFloat(req.body.post.price), volume: parseFloat(req.body.post.volume)});
+	    	orderBook.DAIALY.bids.push({price: parseFloat(req.body.post.price), volume: parseFloat(req.body.post.volume), total: parseFloat(req.body.post.total), buyer: req.body.post.buyer});
 	    } else if (req.body.post.type === "ask") {
-	    	orderBook.DAIALY.asks.push({price: parseFloat(req.body.post.price), volume: parseFloat(req.body.post.volume)});
+	    	orderBook.DAIALY.asks.push({price: parseFloat(req.body.post.price), volume: parseFloat(req.body.post.volume), total: parseFloat(req.body.post.total), seller: req.body.post.seller});
 	    }
 
 	    json = JSON.stringify(orderBook, null, 2);
-	    fs.writeFile('./orderBooks/orderBook.json', json, 'utf8', (err) => {
+	    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
 			  if (err) {
 			  	console.log(err);
 			  } else {

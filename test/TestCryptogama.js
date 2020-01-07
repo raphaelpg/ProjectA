@@ -209,7 +209,7 @@ contract("SwapAly", function(accounts){
             buyer,
             this.TokenERC20DaiInstance.address,
             buyAmount
-            )
+        )
 
         let sellerAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(seller);
         let sellerDaiBalanceAfter = await this.TokenERC20DaiInstance.balanceOf(seller);
