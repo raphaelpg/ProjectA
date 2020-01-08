@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
 //Import dapp contract and tokens contracts
-import SwapAlyContract from "./contracts/SwapAly.json";
+//import SwapAlyContract from "./contracts/SwapAly.json";
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 //Import style and tokens logo
@@ -55,13 +55,13 @@ class App extends Component {
 
       // Get contracts instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork1 = SwapAlyContract.networks[networkId];
+      //const deployedNetwork1 = SwapAlyContract.networks[networkId];
       const deployedNetwork2 = TokenERC20AlyContract.networks[networkId];
       const deployedNetwork3 = TokenERC20DaiContract.networks[networkId];
-      const instanceSwapAly = new web3.eth.Contract(
-        SwapAlyContract.abi,
-        deployedNetwork1 && deployedNetwork1.address,
-      );
+      // const instanceSwapAly = new web3.eth.Contract(
+      //   SwapAlyContract.abi,
+      //   deployedNetwork1 && deployedNetwork1.address,
+      // );
       const instanceTokenAly = new web3.eth.Contract(
         TokenERC20AlyContract.abi,
         deployedNetwork2 && deployedNetwork2.address,
@@ -110,10 +110,10 @@ class App extends Component {
       this.setState({ 
         web3, 
         accounts, 
-        swapAlyContract: instanceSwapAly,
+        //swapAlyContract: instanceSwapAly,
         tokenAlyContract: instanceTokenAly,
         tokenDaiContract: instanceTokenDai,
-        swapAlyContractAddress: deployedNetwork1.address,
+        //swapAlyContractAddress: deployedNetwork1.address,
         tokenAlyContractAddress: deployedNetwork2.address,
         tokenDaiContractAddress: deployedNetwork3.address,
         tokenAddresses: tokenAddresses
@@ -131,6 +131,16 @@ class App extends Component {
     this.setState({serverStatus: "disconnected"});
     this.callApi()
       .then(res => this.setState({ serverStatus: res.express }))
+      .catch(err => console.log(err));
+
+    //Retrieve swap contract's owner
+    this.getSwapContractOwner()
+      .then(res => this.setState({ swapAlyOwner: res.express }))
+      .catch(err => console.log(err));
+
+    //Retrieve swap contract's address
+    this.getSwapContractAddress()
+      .then(res => this.setState({ swapAlyContractAddress: res.express }))
       .catch(err => console.log(err));
 
     //Display data
@@ -180,13 +190,28 @@ class App extends Component {
     this.displayOrderBook();
   }
 
-
   callApi = async () => {
     const response = await fetch('/api/hello');
     const serverConnect = await response.json();
     if (response.status !== 200) throw Error(serverConnect.message);
     
     return serverConnect;
+  }
+
+  getSwapContractOwner = async () => {
+    const responseSwapOwner = await fetch('/api/swapContractOwner');
+    const swapOwner = await responseSwapOwner.json();
+    if (responseSwapOwner.status !== 200) throw Error(swapOwner.message);
+    
+    return swapOwner;
+  }
+
+  getSwapContractAddress = async () => {
+    const responseSwap = await fetch('/api/swapContractAddress');
+    const swapAddress = await responseSwap.json();
+    if (responseSwap.status !== 200) throw Error(swapAddress.message);
+    
+    return swapAddress;
   }
 
   displayOrderBook = async () => {
@@ -364,48 +389,34 @@ class App extends Component {
     console.log("retrieve price function ended");
   }
 
-  buyToken = async (volume) => {
-    const { accounts, swapAlyContract, swapAlyContractAddress, tokenAlyContract, tokenAlyContractAddress, tokenDaiContract, tokenDaiContractAddress, bestSellerPrice } = this.state;
-    
-    //approve prix * volume
-    let volumeToApprove = bestSellerPrice * volume;
-    await tokenDaiContract.methods.approve(swapAlyContractAddress, volumeToApprove).send({from: accounts[0]});
-
-    this.state.pushedOrder = {'type': 'bid', 'price': bestSellerPrice, 'volume': volume, 'total': bestSellerPrice * volume, 'buyer': accounts[0]};
-
-    const response = await fetch('/api/world', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.pushedOrder }),
-    });
-    const body = await response.text();
-
-    this.setState({ responseToPost: body });
-
+  buyToken = async () => {
     this.displayOrderBook(); 
   }
 
   checkOrders = async () => {
-    const { accounts, swapAlyContract, tokenAlyContractAddress, tokenDaiContractAddress, bestSellerAddress, bestSellerPrice, bestSellerVolume, bestBuyerAddress, bestBuyerVolume } = this.state;
-    let volumeToTransfer = bestBuyerVolume * bestSellerPrice;
+    // const { accounts, swapAlyContract, tokenAlyContractAddress, tokenDaiContractAddress, bestSellerAddress, bestSellerPrice, bestSellerVolume, bestBuyerAddress, bestBuyerVolume } = this.state;
+    // let volumeToTransfer = bestBuyerVolume * bestSellerPrice;
 
-    //swap
-    console.log("swap started");
-    await swapAlyContract.methods.swapToken(bestSellerAddress, tokenAlyContractAddress, bestBuyerVolume, bestBuyerAddress, tokenDaiContractAddress, volumeToTransfer).send({from: accounts[0]});
-    console.log("swap ended");
+    // //swap
+    // console.log("swap started");
+    // await swapAlyContract.methods.swapToken(bestSellerAddress, tokenAlyContractAddress, bestBuyerVolume, bestBuyerAddress, tokenDaiContractAddress, volumeToTransfer).send({from: accounts[0]});
+    // console.log("swap ended");
     //maj orderbook
     //maj decrease approve seller
     //maj decrease approve buyer
     //maj tradeHistory
+
+    const callCheck = await fetch('/api/swap');
+    const callCheckResponse = await callCheck.json();
+    if (callCheck.status !== 200) throw Error(callCheckResponse.message);
+    return callCheckResponse;
   }
 
   buyOrder = async (_volume, _price) => {
-    const { accounts, swapAlyContractAddress, tokenDaiContract, _orderBookBids } = this.state;
-    await tokenDaiContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
-
-    this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0]};
+    const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress, _orderBookBids } = this.state;
+    this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
+    
+    await tokenDaiContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
 
     const response = await fetch('/api/world', {
       method: 'POST',
@@ -414,19 +425,16 @@ class App extends Component {
       },
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
-    const body = await response.text();
-    
-    this.setState({ responseToPost: body });
 
-    //_orderBookBids.push({'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume});
-    this.displayOrderBook(); 
+    await this.checkOrders();
+    await this.displayOrderBook();
   }
 
   sellOrder = async (_volume, _price) => {
-    const { accounts, swapAlyContractAddress, tokenAlyContract, _orderBookBids } = this.state;
-    await tokenAlyContract.methods.approve(swapAlyContractAddress, _volume).send({from: accounts[0]});
+    const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress, _orderBookBids } = this.state;
+    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
-    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0]};
+    await tokenAlyContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
 
     const response = await fetch('/api/world', {
       method: 'POST',
@@ -435,12 +443,8 @@ class App extends Component {
       },
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
-    const body = await response.text();
-    
-    this.setState({ responseToPost: body });
-
-    //_orderBookBids.push({'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume});
-    this.displayOrderBook();
+    await this.checkOrders();
+    await this.displayOrderBook();
   }
 
   render() {
@@ -457,7 +461,8 @@ class App extends Component {
           <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
           <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
           <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
-          <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>  
+          <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>
+          <div>The swapAly contract address: {this.state.swapAlyContractAddress}</div>
           <div>The current allowance is set to: {this.state.allowance}</div>*/}
           <div className="description">Swap and trade ERC20 tokens</div>
           <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
@@ -530,6 +535,7 @@ class App extends Component {
                     event.preventDefault()
                     const sellVolume = this.volumeSell.value
                     const sellPrice = this.priceSell.value
+                    console.log("vol: ", sellVolume, ", price: ", sellPrice);
                     this.sellOrder(sellVolume, sellPrice)
                   }}>
                   <div className="fields">
@@ -553,13 +559,12 @@ class App extends Component {
             <div>
               <form onSubmit={(event) => {
                   event.preventDefault()
-                  const volumeToBuy = this.volumeToBuy.value
-                  this.buyToken(volumeToBuy)
+                  this.buyToken()
                 }}>
                 <button type="submit">Buy</button>
                 <div className="fields">
                   Volume:
-                  <input id="volumeToBuy" type="text" ref={(input) => { this.volumeToBuy = input }} required/>
+                  <input id="volumeToBuy" type="text" ref={(input) => { this.volumeToBuy = input }} />
                 </div>
               </form>
             </div>
