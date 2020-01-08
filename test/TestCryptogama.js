@@ -191,8 +191,8 @@ contract("SwapAly", function(accounts){
     it("Check swapToken function", async function() {
         let sellAmount = new BN('100');
         let buyAmount = new BN('1500');
-        await this.TokenERC20AlyInstance.approve(this.SwapAlyInstance.address, sellAmount, {from: seller});
-        await this.TokenERC20DaiInstance.approve(this.SwapAlyInstance.address, buyAmount, {from: buyer});
+        await this.TokenERC20AlyInstance.approve(contractOwner, sellAmount, {from: seller});
+        await this.TokenERC20DaiInstance.approve(contractOwner, buyAmount, {from: buyer});
 
         let sellerAlyBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(seller);
         let sellerDaiBalanceBefore = await this.TokenERC20DaiInstance.balanceOf(seller);
@@ -208,8 +208,9 @@ contract("SwapAly", function(accounts){
             sellAmount,
             buyer,
             this.TokenERC20DaiInstance.address,
-            buyAmount
-        )
+            buyAmount,
+            {from: contractOwner}
+        );
 
         let sellerAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(seller);
         let sellerDaiBalanceAfter = await this.TokenERC20DaiInstance.balanceOf(seller);
