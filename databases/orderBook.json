@@ -1,6 +1,13 @@
 {
   "DAIALY": {
     "asks": [
+      {
+        "price": 125,
+        "volume": 90,
+        "total": 11250,
+        "seller": "0x9b1072e802cA3E8e54F9D867E6767fE557334eB8",
+        "tokenContractAddress": "0x38966853e9a429cc23632e18688cA5c6b86255D4"
+      }
     ],
     "bids": []
   }

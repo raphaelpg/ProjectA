@@ -1,39 +1,58 @@
+//IMPORT LIBRARIES
 const Web3 = require("web3");
 const SwapAlyJSON = require("./client/src/contracts/SwapAly.json");
 const TokenAlyJSON = require("./client/src/contracts/TokenERC20Aly.json");
 const TokenDaiJSON = require("./client/src/contracts/TokenERC20Dai.json");
 
 
-//Deploy swap contract
+//DEPLOY SWAP CONTRACT
 const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('http://localhost:7545'));
-const testServerAddress = "0xCD3F68265720450519c4A62289a4eC2141FcA26D";
+
+let accounts = '';
+let serverAddress = '';
 let swapContractAddress = '';
 
 let SwapAlyContract = new web3.eth.Contract(SwapAlyJSON.abi);
 
-SwapAlyContract.deploy({
-	data: SwapAlyJSON.bytecode
-})
-.send({
-    from: testServerAddress,
-    gas: 1500000,
-    gasPrice: '30000000000000'
-})
-.then(function(newContractInstance){
-    swapContractAddress = newContractInstance.options.address;
-    SwapAlyContract.options.address = swapContractAddress;
-		//listen to events
-		let events = SwapAlyContract.events.TokenExchanged({fromBlock: 0, toBlock: 'latest'},
-		(error, event) => { console.log("event: ",event);});
-});
+const getAccount = async () => {
+	accounts = await web3.eth.getAccounts()
+	serverAddress = accounts[0]
+}
+
+const deploySwapContract = async () => {
+	await getAccount()
+	SwapAlyContract.deploy({
+		data: SwapAlyJSON.bytecode
+	})
+	.send({
+	    from: serverAddress,
+	    gas: 1500000,
+	    gasPrice: '30000000000000'
+	})
+	.then(function(newContractInstance){
+	    swapContractAddress = newContractInstance.options.address;
+	    SwapAlyContract.options.address = swapContractAddress;
+			//listen to events
+			// let events = SwapAlyContract.events.TokenExchanged({fromBlock: 0, toBlock: 'latest'},
+			// (error, event) => { console.log("event: ",event);});
+			console.log("Server address: ", serverAddress)
+			console.log("Swap contract deployed at: ", swapContractAddress)
+			console.log("Accounts: ", accounts)
+	})
+}
+
+deploySwapContract();
+
+
 
 
 
 let tokenALYContract = new web3.eth.Contract(TokenAlyJSON.abi, '0x38966853e9a429cc23632e18688cA5c6b86255D4');
 let tokenDAIContract = new web3.eth.Contract(TokenDaiJSON.abi, '0x5985Db3C6294D1716d8b6eF8c45B659B68b5dc8a');
 
-//Server functions
+
+//SERVER FUNCTIONS, ANSWER CALLS FROM CLIENTS
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -51,7 +70,7 @@ app.get('/api/hello', (req, res) => {
 
 //Send swap contract's owner
 app.get('/api/swapContractOwner', (req, res) => {
-  res.send({ express: testServerAddress });
+  res.send({ express: serverAddress });
 });
 
 //Send swap contract's address
@@ -143,12 +162,12 @@ checkOrders = async () => {
 	console.log("CheckOrders function started");
 	let owner3 = await tokenALYContract.methods.getOwner().call();
 	console.log("ALY owner", owner3);
-	let allowance1 = await tokenALYContract.methods.allowance(owner3, testServerAddress).call();
-	console.log("allowance1", allowance1);
+	let allowance1 = await tokenALYContract.methods.allowance(owner3, serverAddress).call();
+	console.log("ALY allowance", allowance1);
 	let owner4 = await tokenDAIContract.methods.getOwner().call();
 	console.log("DAI owner", owner4);
-	let allowance2 = await tokenDAIContract.methods.allowance(owner4, testServerAddress).call();
-	console.log("allowance2", allowance2);
+	let allowance2 = await tokenDAIContract.methods.allowance(owner4, serverAddress).call();
+	console.log("DAI allowance", allowance2);
 
 	fs.readFile('./databases/orderBook.json', 'utf8', async function readFileCallback(err, data){
     if (err){
@@ -179,11 +198,18 @@ checkOrders = async () => {
 			    let transactionCost = transactionVolume * sellerPrice;
 
 			    //Send swap transaction
-			    console.log("swap transaction: ", seller, " | ", sellerTokenAddress, " | ", transactionVolume, " | ", buyer, " | ", buyerTokenAddress, " | ", transactionCost )
+			    console.log(
+			    	"Trying swap transaction: seller:", seller,
+			    	" seller token: ", sellerTokenAddress,
+			    	" volume sold: ", transactionVolume,
+			    	" buyer: ", buyer,
+			    	" buyer token: ", buyerTokenAddress,
+			    	" cost ", transactionCost
+			    )
 					await SwapAlyContract.methods.swapToken(seller, sellerTokenAddress, transactionVolume, buyer, buyerTokenAddress, transactionCost)
-					.send({from: testServerAddress, gas:3000000})
+					.send({from: serverAddress, gas:3000000})
 					.then(function(){
-						console.log("swap done");
+						console.log("Swap transaction success");
 
 						//Update order parameters (eventually remove order if volume = 0)
 						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume -= transactionVolume;
@@ -206,6 +232,42 @@ checkOrders = async () => {
 						  	console.log('Orderbook updated');
 						  }
 						});
+
+						//Update trade history database
+							//Read file
+						fs.readFile('./databases/trades.json', 'utf8', async function readFileCallback(err, data){
+					    if (err){
+					      console.log(err);
+					    } else {
+							  let tradeFile = JSON.parse(data);
+
+							  //Set timestamp of the transaction...
+								let today = new Date();
+								let dd = String(today.getDate()).padStart(2, '0');
+								let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+								let yyyy = today.getFullYear();
+								let time = today.getHours() + ":" + today.getMinutes() + ":" + ("0" + today.getSeconds()).slice(-2);
+								today =  dd + '/' + mm + '/' + yyyy;
+								nowStamp = today + ' ' + time;
+
+								//Update hitsory
+								tradeFile.trades.unshift({
+									price: parseFloat(sellerPrice),
+									volume: parseFloat(transactionVolume),
+									timestamp: nowStamp
+								})
+
+								//Save file
+								json = JSON.stringify(tradeFile, null, 2);
+						    fs.writeFile('./databases/trades.json', json, 'utf8', (err) => {
+								  if (err) {
+								  	console.log(err);
+								  } else {
+								  	console.log('Trade history updated');
+								  }
+								});
+							}
+						})	
 					})
 					.catch(error => {
 						console.log('checkOrders error', error);
@@ -220,7 +282,7 @@ checkOrders = async () => {
 	})
 }
 
-
+//TRY SWAP
 app.get('/api/swap',async (req, res) => {
 	await checkOrders()
 	.then(() => {
@@ -229,6 +291,35 @@ app.get('/api/swap',async (req, res) => {
 	.catch(error => {
 		console.log('checkOrders error', error);
 	})
+	return;
+});
+
+//SAVE EVENT INTO log.json FILE
+app.post('/api/log',async (req, res) => {
+	console.log(req.body)
+	fs.readFile('./databases/log.json', 'utf8', async function readFileCallback(err, data){
+    if (err){
+      console.log(err);
+    } else {
+		  let log = JSON.parse(data);
+		  console.log(log)
+		  log.logs.push({event: req.body.post.event, values: req.body.post.returnValues})
+			logJson = JSON.stringify(log, null, 2);
+		  fs.writeFile('./databases/log.json', logJson, 'utf8', (err) => {
+			  if (err) {
+			  	console.log(err);
+			  } else {
+			  	console.log('Log file updated');
+			  }
+			})
+		}
+	})
+	// .then(() => {
+	// 	res.send({ express: 'Event log saved' })
+	// })
+	// .catch(error => {
+	// 	console.log('Event log error', error);
+	// })
 	return;
 });
 
