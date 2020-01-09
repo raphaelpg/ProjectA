@@ -527,7 +527,7 @@ class App extends Component {
                     await this.sellOrder(sellVolume, sellPrice)
                     setTimeout( () => {
                       this.displayOrderBook();
-                    }, 2000);
+                    }, 1000);
                   }}>
                   <div className="fields">
                     <div className="buyFields">
@@ -564,7 +564,7 @@ class App extends Component {
                   this.checkOrders()
                   setTimeout( () => {
                       this.displayOrderBook();
-                    }, 2000);
+                    }, 1000);
                 }}>
                 <button type="submit">Swap</button>  
               </form>

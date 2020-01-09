@@ -143,11 +143,11 @@ checkOrders = async () => {
 	console.log("CheckOrders function started");
 	let owner3 = await tokenALYContract.methods.getOwner().call();
 	console.log("ALY owner", owner3);
-	let allowance1 = await tokenALYContract.methods.allowance('0x9b1072e802cA3E8e54F9D867E6767fE557334eB8', testServerAddress).call();
+	let allowance1 = await tokenALYContract.methods.allowance(owner3, testServerAddress).call();
 	console.log("allowance1", allowance1);
 	let owner4 = await tokenDAIContract.methods.getOwner().call();
 	console.log("DAI owner", owner4);
-	let allowance2 = await tokenDAIContract.methods.allowance('0x18eaca6735c3D935cdEA3f7794b6C8B4B9654e0D', testServerAddress).call();
+	let allowance2 = await tokenDAIContract.methods.allowance(owner4, testServerAddress).call();
 	console.log("allowance2", allowance2);
 
 	fs.readFile('./databases/orderBook.json', 'utf8', async function readFileCallback(err, data){
@@ -185,16 +185,19 @@ checkOrders = async () => {
 					.then(function(){
 						console.log("swap done");
 
-						//Update order volume (remove order if volume = 0)
+						//Update order parameters (eventually remove order if volume = 0)
 						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume -= transactionVolume;
+						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].total = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume * orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].price;
 						if (orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume == 0) {
 							orderBook.DAIALY.asks.splice(orderBook.DAIALY.asks.length-1, 1);
 						}
 						orderBook.DAIALY.bids[0].volume -= transactionVolume;
+						orderBook.DAIALY.bids[0].total = orderBook.DAIALY.bids[0].volume * orderBook.DAIALY.bids[0].price;
 						if (orderBook.DAIALY.bids[0].volume == 0) {
 							orderBook.DAIALY.bids.splice(0, 1);
 						}
 						
+						//Save in orderbook
 						json = JSON.stringify(orderBook, null, 2);
 				    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
 						  if (err) {
