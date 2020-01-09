@@ -10,9 +10,9 @@ web3.setProvider(new web3.providers.HttpProvider('http://localhost:7545'));
 const testServerAddress = "0xCD3F68265720450519c4A62289a4eC2141FcA26D";
 let swapContractAddress = '';
 
-let SwapAlyContractModel = new web3.eth.Contract(SwapAlyJSON.abi);
+let SwapAlyContract = new web3.eth.Contract(SwapAlyJSON.abi);
 
-SwapAlyContractModel.deploy({
+SwapAlyContract.deploy({
 	data: SwapAlyJSON.bytecode
 })
 .send({
@@ -21,10 +21,14 @@ SwapAlyContractModel.deploy({
     gasPrice: '30000000000000'
 })
 .then(function(newContractInstance){
-    console.log(newContractInstance.options.address) // instance with the new contract address
     swapContractAddress = newContractInstance.options.address;
-    SwapAlyContractModel.options.address = swapContractAddress;
+    SwapAlyContract.options.address = swapContractAddress;
+		//listen to events
+		let events = SwapAlyContract.events.TokenExchanged({fromBlock: 0, toBlock: 'latest'},
+		(error, event) => { console.log("event: ",event);});
 });
+
+
 
 let tokenALYContract = new web3.eth.Contract(TokenAlyJSON.abi, '0x38966853e9a429cc23632e18688cA5c6b86255D4');
 let tokenDAIContract = new web3.eth.Contract(TokenDaiJSON.abi, '0x5985Db3C6294D1716d8b6eF8c45B659B68b5dc8a');
@@ -82,9 +86,8 @@ app.get('/api/orderBook', (req, res) => {
 });
 
 //Insert new order inside orderBook (ask and bid)
-app.post('/api/world', (req, res) => {
+app.post('/api/insert', (req, res) => {
   console.log(req.body);
-	console.log(req.body.post.price);
 
   fs.readFile('./databases/orderBook.json', 'utf8', function readFileCallback(err, data){
     if (err){
@@ -97,6 +100,26 @@ app.post('/api/world', (req, res) => {
 	    } else if (req.body.post.type === "ask") {
 	    	orderBook.DAIALY.asks.push({price: parseFloat(req.body.post.price), volume: parseFloat(req.body.post.volume), total: parseFloat(req.body.post.total), seller: req.body.post.seller, tokenContractAddress: req.body.post.tokenContractAddress}); 	
 	    }
+
+	    //Sort array
+	    function sortDecrease(a, b){
+	      if (a.price === b.price) {
+	          return 0;
+	      } else {
+	          return (a.price > b.price) ? -1 : 1;
+	      }
+	    }
+
+	    function sortIncrease(a, b){
+	      if (a.price === b.price) {
+	          return 0;
+	      } else {
+	          return (a.price < b.price) ? -1 : 1;
+	      }
+	    }
+
+	    orderBook.DAIALY.bids.sort(sortDecrease);
+	    orderBook.DAIALY.asks.sort(sortIncrease);
 
 	    json = JSON.stringify(orderBook, null, 2);
 	    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
@@ -116,13 +139,8 @@ app.post('/api/world', (req, res) => {
 });
 
 //Check order function: parse orderbook for matching, if yes, perform the swap
-
 checkOrders = async () => {
-	// console.log("serverAddress: ", testServerAddress)
-	// let owner1 = await SwapAlyContractModel.methods.getOwner().call({from: testServerAddress});
-	// console.log("owner1: ", owner1);
-	// let owner2 = await SwapAlyContractModel.methods.getOwner().call({from: '0x9b1072e802cA3E8e54F9D867E6767fE557334eB8'});
-	// console.log("owner2: ", owner2);
+	console.log("CheckOrders function started");
 	let owner3 = await tokenALYContract.methods.getOwner().call();
 	console.log("ALY owner", owner3);
 	let allowance1 = await tokenALYContract.methods.allowance('0x9b1072e802cA3E8e54F9D867E6767fE557334eB8', testServerAddress).call();
@@ -138,44 +156,77 @@ checkOrders = async () => {
     } else {
 		  let orderBook = JSON.parse(data);
     	if (orderBook.DAIALY.asks[0] && orderBook.DAIALY.bids[0]) {
+	    	//Retrieve orders parameters
 		    let seller = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].seller;
 		    let sellerTokenAddress = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].tokenContractAddress;	
 		    let sellerPrice = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].price;
-		    let sellerVolume = 1;
+		    let sellerVolume = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume;
 		    
 		    let buyer = orderBook.DAIALY.bids[0].buyer;
 		    let buyerTokenAddress = orderBook.DAIALY.bids[0].tokenContractAddress;
 		    let buyerPrice = orderBook.DAIALY.bids[0].price;
-		    let buyerVolume = 1;
+		    let buyerVolume = orderBook.DAIALY.bids[0].volume;
 
-		    if (sellerPrice == buyerPrice) {
-					await SwapAlyContractModel.methods.swapToken(seller, sellerTokenAddress, sellerVolume, buyer, buyerTokenAddress, buyerVolume)
+		    if (sellerPrice <= buyerPrice) {
+			    //Define transaction parameters
+			    let transactionVolume = 0;
+			    if (sellerVolume >= buyerVolume) {
+			    	transactionVolume = buyerVolume;
+			    } else {
+			    	transactionVolume = sellerVolume;
+			    }
+
+			    let transactionCost = transactionVolume * sellerPrice;
+
+			    //Send swap transaction
+			    console.log("swap transaction: ", seller, " | ", sellerTokenAddress, " | ", transactionVolume, " | ", buyer, " | ", buyerTokenAddress, " | ", transactionCost )
+					await SwapAlyContract.methods.swapToken(seller, sellerTokenAddress, transactionVolume, buyer, buyerTokenAddress, transactionCost)
 					.send({from: testServerAddress, gas:3000000})
 					.then(function(){
 						console.log("swap done");
 
-						//Update orderBook
-						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume -= sellerVolume;
-						orderBook.DAIALY.bids[0].volume -= buyerVolume;
+						//Update order volume (remove order if volume = 0)
+						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume -= transactionVolume;
+						if (orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume == 0) {
+							orderBook.DAIALY.asks.splice(orderBook.DAIALY.asks.length-1, 1);
+						}
+						orderBook.DAIALY.bids[0].volume -= transactionVolume;
+						if (orderBook.DAIALY.bids[0].volume == 0) {
+							orderBook.DAIALY.bids.splice(0, 1);
+						}
 						
 						json = JSON.stringify(orderBook, null, 2);
 				    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
 						  if (err) {
 						  	console.log(err);
 						  } else {
-						  	orderbookUpdated
 						  	console.log('Orderbook updated');
 						  }
 						});
-					});
+					})
+					.catch(error => {
+						console.log('checkOrders error', error);
+					})
+					return;
+		    } else {
+		    	console.log("No matching orders")
+		    	return;
 		    }
 	    }
 		}
 	})
 }
 
-app.get('/api/swap', (req, res) => {
-	checkOrders();
+
+app.get('/api/swap',async (req, res) => {
+	await checkOrders()
+	.then(() => {
+		res.send({ express: 'checkOrdersFinished' });
+	})
+	.catch(error => {
+		console.log('checkOrders error', error);
+	})
+	return;
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

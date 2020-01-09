@@ -146,6 +146,13 @@ class App extends Component {
     //Display data
     this.displayOrderBook();
     this.displayTradeHistory();
+
+    //listen to events
+    let events1 = this.state.tokenAlyContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    (error, event) => { console.log(event);});
+
+    let events2 = this.state.tokenDaiContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    (error, event) => { console.log(event);});
   }
 
 
@@ -227,24 +234,24 @@ class App extends Component {
     _orderBookAsks = orderBookEntire['orderBook']['DAIALY']['asks'];
 
     //Sort array
-    function sortDecrease(a, b){
-      if (a.price === b.price) {
-          return 0;
-      } else {
-          return (a.price > b.price) ? -1 : 1;
-      }
-    }
+    // function sortDecrease(a, b){
+    //   if (a.price === b.price) {
+    //       return 0;
+    //   } else {
+    //       return (a.price > b.price) ? -1 : 1;
+    //   }
+    // }
 
-    function sortIncrease(a, b){
-      if (a.price === b.price) {
-          return 0;
-      } else {
-          return (a.price < b.price) ? -1 : 1;
-      }
-    }
+    // function sortIncrease(a, b){
+    //   if (a.price === b.price) {
+    //       return 0;
+    //   } else {
+    //       return (a.price < b.price) ? -1 : 1;
+    //   }
+    // }
 
-    _orderBookBids.sort(sortDecrease);
-    _orderBookAsks.sort(sortIncrease);
+    // _orderBookBids.sort(sortDecrease);
+    // _orderBookAsks.sort(sortIncrease);
 
     //Reset DOM order book
     let orderBookBidsBody = document.getElementById('orderBookBidsBody');
@@ -369,38 +376,21 @@ class App extends Component {
   }
 
   
-  handleSubmit = async e => {
-    e.preventDefault();
-    const response = await fetch('/api/world', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.post }),
-    });
-    const body = await response.text();
+  // handleSubmit = async e => {
+  //   e.preventDefault();
+  //   const response = await fetch('/api/world', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ post: this.state.post }),
+  //   });
+  //   const body = await response.text();
     
-    this.setState({ responseToPost: body });
-  }
-
-  retrievePrice = async () => {
-    console.log("retrieve price function started");
-    this.setState({priceEthAly: 130});
-    console.log("retrieve price function ended");
-  }
-
-  buyToken = async () => {
-    this.displayOrderBook(); 
-  }
+  //   this.setState({ responseToPost: body });
+  // }
 
   checkOrders = async () => {
-    // const { accounts, swapAlyContract, tokenAlyContractAddress, tokenDaiContractAddress, bestSellerAddress, bestSellerPrice, bestSellerVolume, bestBuyerAddress, bestBuyerVolume } = this.state;
-    // let volumeToTransfer = bestBuyerVolume * bestSellerPrice;
-
-    // //swap
-    // console.log("swap started");
-    // await swapAlyContract.methods.swapToken(bestSellerAddress, tokenAlyContractAddress, bestBuyerVolume, bestBuyerAddress, tokenDaiContractAddress, volumeToTransfer).send({from: accounts[0]});
-    // console.log("swap ended");
     //maj orderbook
     //maj decrease approve seller
     //maj decrease approve buyer
@@ -409,16 +399,16 @@ class App extends Component {
     const callCheck = await fetch('/api/swap');
     const callCheckResponse = await callCheck.json();
     if (callCheck.status !== 200) throw Error(callCheckResponse.message);
-    return callCheckResponse;
+    return;
   }
 
   buyOrder = async (_volume, _price) => {
-    const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress, _orderBookBids } = this.state;
+    const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress, _orderBookBids, bestSellerPrice } = this.state;
     this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
     
-    await tokenDaiContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
+    await tokenDaiContract.methods.approve(swapAlyOwner, _volume * _price).send({from: accounts[0]})
 
-    const response = await fetch('/api/world', {
+    const response = await fetch('/api/insert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -426,8 +416,7 @@ class App extends Component {
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
 
-    await this.checkOrders();
-    await this.displayOrderBook();
+    await this.checkOrders()
   }
 
   sellOrder = async (_volume, _price) => {
@@ -436,15 +425,15 @@ class App extends Component {
 
     await tokenAlyContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
 
-    const response = await fetch('/api/world', {
+    const response = await fetch('/api/insert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
+
     await this.checkOrders();
-    await this.displayOrderBook();
   }
 
   render() {
@@ -467,18 +456,6 @@ class App extends Component {
           <div className="description">Swap and trade ERC20 tokens</div>
           <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
         </header>      
-        {/*<form onSubmit={this.handleSubmit}>
-          <p>
-            <strong>Post to Server:</strong>
-          </p>
-          <input
-            type="text"
-            value={this.state.post}
-            onChange={e => this.setState({ post: e.target.value })}
-          />
-          <button type="submit">Submit</button>
-        </form>
-        <p>{this.state.responseToPost}</p>*/}
 
         <div className="tokenSelector">
           <h2>Select token pair</h2>
@@ -506,79 +483,99 @@ class App extends Component {
             <div className="buySellToken">
               <div className="buyToken">
                 <div className="buyTokenTitle">Buy</div>
-                <form onSubmit={(event) => {
+                <form onSubmit={async (event) => {
                     event.preventDefault()
                     const buyVolume = this.volumeBuy.value
                     const buyPrice = this.priceBuy.value
-                    this.buyOrder(buyVolume, buyPrice)
+                    await this.buyOrder(buyVolume, buyPrice)
+                    setTimeout( () => {
+                      this.displayOrderBook();
+                    }, 2000);
                   }}>
                   <div className="fields">
                     <div className="buyFields">
                       <label for="priceBuy">Price:</label>
-                      <input className="inputFields" id="priceBuy" type="text" ref={(input) => { this.priceBuy = input }} required/>
+                      <div>
+                        <input className="inputFields" type="text" id="priceBuy" ref={(input) => { this.priceBuy = input }} required/>
+                        <input className="inputFields2" type="text" id="priceBuy2" value="DAI " disabled/>
+                      </div>
                     </div>
                     <div className="buyFields">
                       <label for="volumeBuy">Volume:</label>
-                      <input className="inputFields" id="volumeBuy" type="text" ref={(input) => { this.volumeBuy = input }} required/>
+                      <div>
+                        <input className="inputFields" type="text" id="volumeBuy" ref={(input) => { this.volumeBuy = input }} required/>
+                        <input className="inputFields2" type="text" id="volumeBuy2" value="ALY " disabled/>
+                      </div>
                     </div>
-                  </div>
-                  <div className="buyFields">
-                    <label for="totalBuy">Total:</label>
-                    <input className="inputFields" id="totalBuy" type="text" ref={(input) => { this.totalBuy = input }} />
+                    <div className="buyFields">
+                      <label for="totalBuy">Total:</label>
+                      <div>
+                        <input className="inputFields" type="text" id="totalBuy" ref={(input) => { this.totalBuy = this.priceBuy * this.volumeBuy }} />
+                        <input className="inputFields2" type="text" id="totalBuy2" value="DAI " disabled/>
+                      </div>
+                    </div>
                   </div>
                   <button className="buyTokenButton" type="submit">Buy</button>
                 </form>
               </div>
               <div className="buyToken">
                 <div className="buyTokenTitle">Sell</div>
-                <form onSubmit={(event) => {
+                <form onSubmit={async (event) => {
                     event.preventDefault()
                     const sellVolume = this.volumeSell.value
                     const sellPrice = this.priceSell.value
-                    console.log("vol: ", sellVolume, ", price: ", sellPrice);
-                    this.sellOrder(sellVolume, sellPrice)
+                    await this.sellOrder(sellVolume, sellPrice)
+                    setTimeout( () => {
+                      this.displayOrderBook();
+                    }, 2000);
                   }}>
                   <div className="fields">
                     <div className="buyFields">
                       <label for="priceSell">Price:</label>
-                      <input className="inputFields" id="priceSell" type="text" ref={(input) => { this.priceSell = input }} required/>
+                      <div>
+                        <input className="inputFields" type="text" id="priceSell" ref={(input) => { this.priceSell = input }} required/>
+                        <input className="inputFields2" type="text" id="priceSell2" value="DAI " disabled/>
+                      </div>
                     </div>
                     <div className="buyFields">
                       <label for="volumeSell">Volume:</label>
-                      <input className="inputFields" id="volumeSell" type="text" ref={(input) => { this.volumeSell = input }} required/>
+                      <div>
+                        <input className="inputFields" type="text" id="volumeSell" ref={(input) => { this.volumeSell = input }} required/>
+                        <input className="inputFields2" type="text" id="volumeSell2" value="ALY " disabled/>
+                      </div>
                     </div>
                   </div>
                   <div className="buyFields">
                     <label for="totalSell">Total:</label>
-                    <input className="inputFields" id="totalSell" type="text" ref={(input) => { this.totalBuy = input }} />
+                    <div>
+                      <input className="inputFields" type="text" id="totalSell" ref={(input) => { this.totalBuy = this.priceBuy * this.volumeBuy }} />
+                      <input className="inputFields2" type="text" id="totalSell2" value="DAI " disabled/>
+                    </div>
                   </div>
                   <button className="buyTokenButton" type="submit">Sell</button>
                 </form>
               </div>
             </div>
-            <div>
-              <form onSubmit={(event) => {
-                  event.preventDefault()
-                  this.buyToken()
-                }}>
-                <button type="submit">Buy</button>
-                <div className="fields">
-                  Volume:
-                  <input id="volumeToBuy" type="text" ref={(input) => { this.volumeToBuy = input }} />
-                </div>
-              </form>
-            </div>
+            
             <div className="checkOrders">
               <h2>Check orders</h2>
-              <form onSubmit={(event) => {
+              <form onSubmit={async (event) => {
                   event.preventDefault()
                   this.checkOrders()
+                  setTimeout( () => {
+                      this.displayOrderBook();
+                    }, 2000);
                 }}>
                 <button type="submit">Swap</button>  
               </form>
+              <form onSubmit={(event) => {
+                  event.preventDefault()
+                  this.displayOrderBook()
+                }}>
+                <button type="submit">Display</button>  
+              </form>
             </div>
             
-          
           </div>
 
           <div className="MainRight">

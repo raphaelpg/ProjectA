@@ -2,11 +2,12 @@ $orangeGama: darkorange;
 $darkBackground: #1D1D1D;
 $secondGrey: #353535;
 $fontColor: #ADA2B0;
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+$fontFamily: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
+
+body {
+  font-family: $fontFamily;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 12px;
@@ -20,6 +21,11 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+::selection {
+    background-color: $darkBackground;
+    color: $orangeGama;
 }
 
 .Header {
@@ -107,10 +113,44 @@ code {
   justify-content: space-between;
 }
 
-.inputFields{
+input{
   width: 100px;
   background-color: $darkBackground;
   border: 1px solid $secondGrey;
+  color: white;
+  font-family: $fontFamily;
+}
+
+.inputFields{
+  -webkit-appearance:none!important;
+    border-right:0px;
+    outline:none;
+    width:80px;
+}
+
+.inputFields2{
+  -webkit-appearance:none!important;
+    text-align:right;
+    width:45px;
+    border-left:0px;
+    margin:0 0 0 -7px;
+    color: $fontColor;
+}
+
+.inputFields:selected{
+  background-color: $darkBackground;
+  border: 1px solid $secondGrey;
+  color: white;
+}
+
+input:-internal-autofill-selected {
+  background-color: $darkBackground !important;
+  background-image: none !important;
+  color: white;
+}
+
+#priceBuy{
+  background-color: $darkBackground !important;
 }
 
 .buyTokenButton{
@@ -143,23 +183,22 @@ table {
   width: -webkit-fill-available;
   height: 245px;
   background-color: $darkBackground;
+  table-layout: auto;
+}
+
+table #orderBookAsksBody{
+  display: table-cell;
+  vertical-align: bottom;
+}
+
+table #orderBookBidsBody{
+  display: table-cell;
+  vertical-align: top;
 }
 
 table th{
   font-weight: normal;
   width: 135px;
-}
-
-#asks th{
-  vertical-align: bottom;
-}
-
-#bids th{
-  vertical-align: baseline;
-}
-
-.newOrder{
-
 }
 
 .newOrderPriceAsk{
