@@ -1,3 +1,17 @@
+//CRYPTOGAMA DEX REACT CLIENT:
+
+//1.IMPORTS
+//2.DAPP SET UP
+//3.FUNCTIONS TO RETRIEVE DATA FROM THE SERVER
+//4.FUNCTIONS TO SEND DATA TO THE SERVER
+//5.FUNCTIONS FOR HTML RENDERING
+//6.RENDERING HTML
+
+
+
+
+//1.IMPORTS:
+
 //IMPORT
 import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
@@ -10,9 +24,17 @@ import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 //IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
 import logoALY from "./ALY2020.png";
-import logoDAI from "./dai2020.png";
+import logoDAI from "./DAI2020.png";
+import metaLogoALY from "./logoALY.jpg";
+import metaLogoDAI from "./logoDAI.jpg";
+
+
 
 class App extends Component {
+
+//2.DAPP SET UP
+
+  //STATE SET UP
   state = { 
     web3: null,
     accounts: null,
@@ -49,37 +71,33 @@ class App extends Component {
     sellInputTotal: '',
   }
 
-  //Dapp set up
+  //DAPP CONFIGURATION
   componentDidMount = async () => {
     try {
-      // Get network provider and web3 instance.
+      //GET NETWORK PROVIDER AND WEB3 INSTANCE
       const web3 = await getWeb3();
 
-      // Use web3 to get the user's accounts.
+      //GET USER'S ACCOUNTS
       const accounts = await web3.eth.getAccounts();
 
-      // Get contracts instance.
+      //GET TOKEN CONTRACTS INSTANCE
       const networkId = await web3.eth.net.getId();
-      //const deployedNetwork1 = SwapAlyContract.networks[networkId];
       const deployedNetwork2 = TokenERC20AlyContract.networks[networkId];
       const deployedNetwork3 = TokenERC20DaiContract.networks[networkId];
-      // const instanceSwapAly = new web3.eth.Contract(
-      //   SwapAlyContract.abi,
-      //   deployedNetwork1 && deployedNetwork1.address,
-      // );
+
       const instanceTokenAly = new web3.eth.Contract(
         TokenERC20AlyContract.abi,
         deployedNetwork2 && deployedNetwork2.address,
       );
+
       const instanceTokenDai = new web3.eth.Contract(
         TokenERC20DaiContract.abi,
         deployedNetwork3 && deployedNetwork3.address,
       );
 
-      //Mapping token addresses
+      //MAPPING TOKENS INTO METAMASK
       let tokenAddresses = new Map();
 
-      //Maping ALY
       web3.currentProvider.sendAsync({
         method: 'metamask_watchAsset',
         params: {
@@ -88,14 +106,13 @@ class App extends Component {
             "address":deployedNetwork2.address,
             "symbol":"ALY",
             "decimals":0,
-            "image":logoALY
+            "image":metaLogoALY
           },
         },
         id: 20,
       }, console.log)
       tokenAddresses.set("ALY", deployedNetwork2.address);
 
-      //Mapping DAI
       web3.currentProvider.sendAsync({
         method: 'metamask_watchAsset',
         params: {
@@ -104,55 +121,55 @@ class App extends Component {
             "address":deployedNetwork3.address,
             "symbol":"DAI",
             "decimals":0,
-            "image":logoDAI
+            "image":metaLogoDAI
           },
         },
         id: 30,
       }, console.log)
       tokenAddresses.set("DAI", deployedNetwork3.address);
 
-      // Set web3, accounts, and contract to the state
+      //SET PARAMETERS TO THE STATE
       this.setState({ 
         web3, 
         accounts, 
-        //swapAlyContract: instanceSwapAly,
         tokenAlyContract: instanceTokenAly,
         tokenDaiContract: instanceTokenDai,
-        //swapAlyContractAddress: deployedNetwork1.address,
         tokenAlyContractAddress: deployedNetwork2.address,
         tokenDaiContractAddress: deployedNetwork3.address,
         tokenAddresses: tokenAddresses
       })
     } catch (error) {
-      // Catch any errors for any of the above operations.
+      //CATCH ERRORS
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
       );
       console.error(error);
     };
+
+    //RUN FILL ORDERBOOK SCRIPT (NOT FINISHED YET)
     //this.runOrderBookFillingScript();
 
-    //Check server status
+    //SET SERVER STATUS TO STATE
     this.setState({serverStatus: "disconnected"});
     this.callApi()
       .then(res => this.setState({ serverStatus: res.express }))
       .catch(err => console.log(err));
 
-    //Retrieve swap contract's owner
+    //SET SWAP CONTRACT OWNER ADDRESS TO STATE
     this.getSwapContractOwner()
       .then(res => this.setState({ swapAlyOwner: res.express }))
       .catch(err => console.log(err));
 
-    //Retrieve swap contract's address
+    //SET SWAP CONTRACT ADDRESS TO STATE
     this.getSwapContractAddress()
       .then(res => this.setState({ swapAlyContractAddress: res.express }))
       .catch(err => console.log(err));
 
-    //Display data
+    //DISPLAY DATA
     this.displayOrderBook();
     this.displayTradeHistory();
 
-    //listen to events
+    //LISTEN TO TOKEN CONTRACTS EVENTS
     this.state.tokenAlyContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
     async (error, event) => {
       console.log("event ALY contract: ", event);
@@ -166,7 +183,9 @@ class App extends Component {
 
 
 
+  //3.FUNCTIONS TO RETRIEVE DATA FROM THE SERVER:
 
+  //GET SERVER STATUS
   callApi = async () => {
     const response = await fetch('/api/hello');
     const serverConnect = await response.json();
@@ -175,6 +194,7 @@ class App extends Component {
     return serverConnect;
   }
 
+  //GET SWAP CONTRACT OWNER
   getSwapContractOwner = async () => {
     const responseSwapOwner = await fetch('/api/swapContractOwner');
     const swapOwner = await responseSwapOwner.json();
@@ -183,6 +203,7 @@ class App extends Component {
     return swapOwner;
   }
 
+  //GET SWAP CONTRACT ADDRESS
   getSwapContractAddress = async () => {
     const responseSwap = await fetch('/api/swapContractAddress');
     const swapAddress = await responseSwap.json();
@@ -191,19 +212,20 @@ class App extends Component {
     return swapAddress;
   }
 
+  //GET ORDERBOOK DATA
   displayOrderBook = async () => {
     let { _orderBookBids, _orderBookAsks } = this.state;
 
-    //Get orderbook
+    //FETCH AND SAVE ORDERBOOK
     const orderBookResponse = await fetch('/api/orderBook');
     const orderBookEntire = await orderBookResponse.json();
     if (orderBookResponse.status !== 200) throw Error(orderBookEntire.message);
     
-    //Fill _orderBookBids & _orderBooksAsks
+    //SEPARATE ORDERBOOK IN TWO ARRAYS (BUY AND SELL)
     _orderBookBids = orderBookEntire['orderBook']['DAIALY']['bids'];
     _orderBookAsks = orderBookEntire['orderBook']['DAIALY']['asks'];
 
-    //Reset DOM order book
+    //REMOVE OLD ORDERS FROM THE DOM
     let orderBookBidsBody = document.getElementById('orderBookBidsBody');
     while (orderBookBidsBody.firstChild){
       orderBookBidsBody.removeChild(orderBookBidsBody.firstChild);
@@ -214,7 +236,7 @@ class App extends Component {
       orderBookAsksBody.removeChild(orderBookAsksBody.firstChild);
     }
 
-    //Insert orders in DOM
+    //INSERT NEW ORDERS INTO DOM (BUY AND SELL)
     if (_orderBookBids.length > 0){
       for (let i=0; i<15; i++){
         if (_orderBookBids[i]){
@@ -263,6 +285,7 @@ class App extends Component {
       }
     }
 
+    //SAVE BEST PRICES INTO THE STATE
     if (_orderBookAsks[0]){
       this.setState({ bestSellerPrice: _orderBookAsks[0].price, bestSellerVolume: _orderBookAsks[0].volume, bestSellerAddress: _orderBookAsks[0].seller });
     }
@@ -272,18 +295,20 @@ class App extends Component {
     }
   }
 
+
+  //GET TRADE HISTORY DATA
   displayTradeHistory = async () => {
     let { tradeHistory } = this.state;
 
-    //Get trade history
+    ////FETCH AND SAVE TRADE HISTORY
     const tradeHistoryResponse = await fetch('/api/tradeHistory');
     const tradeHistoryEntire = await tradeHistoryResponse.json();
     if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
 
-    //Fill tradeHistory
+    //SAVE TRADE HISTORY IN ARRAY
     tradeHistory = tradeHistoryEntire['tradeHistory']['trades'];
 
-    //Sort array
+    //SORT ARRAY
     function sortDecreaseTime(a, b){
       if (a.timestamp === b.timestamp) {
           return 0;
@@ -294,13 +319,13 @@ class App extends Component {
 
     tradeHistory.sort(sortDecreaseTime);
 
-    //Reset DOM order book
+    //REMOVE OLD TRADES FROM THE DOM
     let tradeHistoryBody = document.getElementById('tradeHistoryBody');
     while (tradeHistoryBody.firstChild){
       tradeHistoryBody.removeChild(tradeHistoryBody.firstChild);
     }
 
-    //Insert trades in DOM
+    //INSERT NEW TRADES INTO DOM
     if (tradeHistory.length > 0){
       for (let i=0; i<31; i++){
         if (tradeHistory[i]){
@@ -326,6 +351,11 @@ class App extends Component {
   }
 
   
+
+
+  //4.FUNCTIONS TO SEND DATA TO THE SERVER:
+
+  //ASK SERVER TO TRY SWAP ORDERS 
   checkOrders = async () => {
     const callCheck = await fetch('/api/swap');
     const callCheckResponse = await callCheck.json();
@@ -333,12 +363,17 @@ class App extends Component {
     return;
   }
 
+  //SEND BUY ORDER TO SERVER
   buyOrder = async (_volume, _price) => {
+
+    //RETRIEVE DATA FROM STATE AND PREPARE ORDER
     const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress } = this.state;
     this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
     
+    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
     await tokenDaiContract.methods.approve(swapAlyOwner, _volume * _price).send({from: accounts[0]})
 
+    //SEND ORDER TO SERVER
     await fetch('/api/insert', {
       method: 'POST',
       headers: {
@@ -347,15 +382,21 @@ class App extends Component {
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
 
+    //TRY TO FIND MATCHING ORDERS FOR SWAP
     await this.checkOrders()
   }
 
+  //SEND SELL ORDER TO SERVER
   sellOrder = async (_volume, _price) => {
+
+    //RETRIEVE DATA FROM STATE AND PREPARE ORDER
     const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress } = this.state;
     this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
+    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
     await tokenAlyContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
 
+    //SEND ORDER TO SERVER
     await fetch('/api/insert', {
       method: 'POST',
       headers: {
@@ -364,10 +405,18 @@ class App extends Component {
       body: JSON.stringify({ post: this.state.pushedOrder }),
     });
 
+    //TRY TO FIND MATCHING ORDERS FOR SWAP
     await this.checkOrders();
   }
 
-  //AUTOFILL BUY TOKEN FORM
+
+
+
+
+  //5.FUNCTIONS FOR HTML RENDERING
+  
+
+  //AUTOCOMPLETE BUY TOKEN FORM
   handleBuyPrice = async (e) => {
     if (e.target.value === '') {
       this.setState({buyInputTotal: ''});      
@@ -387,7 +436,7 @@ class App extends Component {
     }
   }
 
-  //AUTOFILL SELL TOKEN FORM
+  //AUTOCOMPLETE SELL TOKEN FORM
   handleSellPrice = async (e) => {
     if (e.target.value === '') {
       this.setState({sellInputTotal: ''});      
@@ -407,12 +456,21 @@ class App extends Component {
     }
   }
 
+
+
+
+
+  //6.RENDERING HTML
+
   render() {
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     return (
       <div className="App">
+
+
+        {/*HEADER*/}
         <header className="Header">
           <h1 className="Title">Cryptogama</h1>
           {/*
@@ -429,6 +487,8 @@ class App extends Component {
           <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
         </header>      
 
+
+        {/*TOKEN SELECTOR*/}
         <div className="tokenSelector">
           <div className="pairTitle">Selected pair:</div>
           <div>
@@ -441,10 +501,16 @@ class App extends Component {
           </div>
         </div>
 
+
+
+        {/*MAIN SECTION*/}
         <div className="Main">
+
 
           {/*MAIN LEFT PART*/}
           <div className="MainLeft">
+
+            {/*TRADE HISTORY*/}
             <div className="tradeHistoryTitle">Trade history</div>
             <div className="tradeContainer">
               <table id="tradeHistoryTable">
@@ -454,15 +520,22 @@ class App extends Component {
             </div>
           </div>
 
+
           {/*MAIN CENTER PART*/}
           <div className="MainCenter">
+
+            {/*TOKEN PRICE GRAPH*/}
             <div className="graph">
               <div className="tbd">
                 ALY price evolution graph (to come...)
               </div>
             </div>
+
+            {/*BUY AND SELL FORMS*/}
             <div className="buySellToken">
               <div className="buyToken">
+
+                {/*BUY FORM*/}
                 <div className="buyTokenTitle">Buy</div>
                 <form onSubmit={async (event) => {
                     event.preventDefault()
@@ -517,6 +590,8 @@ class App extends Component {
                   <button className="buyTokenButton" type="submit">Buy</button>
                 </form>
               </div>
+
+              {/*SELL FORM*/}
               <div className="buyToken">
                 <div className="buyTokenTitle">Sell</div>
                 <form onSubmit={async (event) => {
@@ -574,25 +649,35 @@ class App extends Component {
               </div>
             </div>
             
+            {/*USERS OPEN ORDERS*/}
             <div className="checkOrders">
               <div className="yourOrders">Your open orders: </div>
               <table className="userOrders"></table>
             </div>
           </div>
 
+
           {/*MAIN RIGHT PART*/}
           <div className="MainRight">
+
+            {/*ORDERBOOK SECTION*/}
             <div className="sectionOrderBook">
               <div className="orderBookTitles">
                 <div>Price (DAI)</div>
                 <div>Volume (ALY)</div>
                 <div>Total (DAI)</div>
               </div>
+
+              {/*SELL ORDERBOOK*/}
               <table id="asks">
                 <tbody id="orderBookAsksBody">
                 </tbody>
               </table>
+
+              {/*CURRENT PRICE*/}
               <p className="orderBookPrice">{this.state.bestSellerPrice.toFixed(2)} DAI (Current price)</p>
+
+              {/*BUY ORDERBOOK*/}
               <table id="bids">
                 <tbody id="orderBookBidsBody">
                 </tbody>

@@ -110,9 +110,23 @@ code {
   vertical-align: top;
 }
 
+table tr{
+  display: flex;
+  justify-content: space-around;
+}
+
+#tradeHistoryTable tr{
+  transition: all 0.2s;
+}
+
+#tradeHistoryTable tr:hover{
+  background-color: $orangeGama;
+  color: $darkBackground;
+}
+
 #tradeHistoryTable th{
   vertical-align: baseline;
-  width: 80px;
+  /*width: 89px;*/
 }
 
 .tradeTimestamp{
@@ -204,6 +218,12 @@ input:-internal-autofill-selected {
   background-color: $darkBackground;
   border: 1px solid $secondGrey;
   color: $fontColor;
+  transition: all 0.2s;
+}
+
+.buyTokenButton:hover{
+  background-color: $orangeGama;
+  color: $darkBackground;
 }
 
 .yourOrders{
@@ -234,6 +254,10 @@ input:-internal-autofill-selected {
   margin-bottom: 4px;
 }
 
+table, th, td {
+  border-collapse: collapse;
+}
+
 table {
   margin: auto;
   font-weight: normal;
@@ -248,15 +272,32 @@ table #orderBookAsksBody{
   vertical-align: bottom;
 }
 
+#orderBookAsksBody tr{
+  transition: all 0.2s;
+}
+
+#orderBookAsksBody tr:hover{
+  background-color: $orangeGama;
+  color: $darkBackground;
+}
+
 table #orderBookBidsBody{
   height: 245px;
   display: table-cell;
   vertical-align: top;
 }
 
+#orderBookBidsBody tr{
+  transition: all 0.2s;
+}
+
+#orderBookBidsBody tr:hover{
+  background-color: $orangeGama;
+  color: $darkBackground;
+}
+
 table th{
   font-weight: normal;
-  width: 135px;
 }
 
 .newOrderPriceAsk{

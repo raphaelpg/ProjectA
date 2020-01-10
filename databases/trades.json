@@ -2,23 +2,8 @@
   "trades": [
     {
       "price": 20,
-      "volume": 1,
-      "timestamp": "10/01/2020 02:38:37"
-    },
-    {
-      "price": 20,
-      "volume": 1,
-      "timestamp": "10/01/2020 02:24:06"
-    },
-    {
-      "price": 20,
-      "volume": 1,
-      "timestamp": "10/01/2020 02:22:31"
-    },
-    {
-      "price": 20,
-      "volume": 1,
-      "timestamp": "10/01/2020 02:20:00"
+      "volume": 10,
+      "timestamp": "10/01/2020 14:34:51"
     }
   ]
 }

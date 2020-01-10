@@ -309,35 +309,5 @@ app.get('/api/swap',async (req, res) => {
 
 
 
-//SAVE EVENT INTO log.json FILE
-// app.post('/api/log',async (req, res) => {
-// 	console.log(req.body)
-// 	fs.readFile('./databases/log.json', 'utf8', async function readFileCallback(err, data){
-//     if (err){
-//       console.log(err);
-//     } else {
-// 		  let log = JSON.parse(data);
-// 		  console.log(log)
-// 		  log.logs.push({event: req.body.post.event, values: req.body.post.returnValues})
-// 			logJson = JSON.stringify(log, null, 2);
-// 		  fs.writeFile('./databases/log.json', logJson, 'utf8', (err) => {
-// 			  if (err) {
-// 			  	console.log(err);
-// 			  } else {
-// 			  	console.log('Log file updated');
-// 			  }
-// 			})
-// 		}
-// 	})
-// 	// .then(() => {
-// 	// 	res.send({ express: 'Event log saved' })
-// 	// })
-// 	// .catch(error => {
-// 	// 	console.log('Event log error', error);
-// 	// })
-// 	return;
-// });
-
-
 //5.START SERVER
 app.listen(port, () => console.log(`Listening on port ${port}`));
