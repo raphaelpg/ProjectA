@@ -25,6 +25,5 @@ contract SwapAly{
         TokenBuy.transferFrom(buyerAddress, sellerAddress, amountBuyer);
         
         emit TokenExchanged(sellerAddress, buyerAddress, amountSeller, amountBuyer);
-        return true;
     }
 }

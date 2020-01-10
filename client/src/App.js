@@ -1,14 +1,16 @@
-//Import modules
+//IMPORT
 import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
-//Import dapp contract and tokens contracts
+
+//IMPORT ERC20 TOKEN CONTRACTS
 //import SwapAlyContract from "./contracts/SwapAly.json";
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
-//Import style and tokens logo
+
+//IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
-import logoAly from "./logoAly.jpg";
-import logoDai from "./logoDai.jpg";
+import logoALY from "./ALY2020.png";
+import logoDAI from "./dai2020.png";
 
 class App extends Component {
   state = { 
@@ -25,9 +27,6 @@ class App extends Component {
     tokenDaiAmount: 0,
     tokenDaiOwner: null,
     tokenDaiContractAddress: null,
-    allowance: 0,
-    priceEthAly: 128,
-    buyAmount: 0,
     tokenAddresses: null,
     _orderBookBids: [],
     _orderBookAsks: [],
@@ -42,6 +41,12 @@ class App extends Component {
     bestBuyerPrice: 0,
     bestBuyerVolume: 0,
     bestBuyerAddress: '',
+    buyInputPrice: 0,
+    buyInputVolume: 0,
+    buyInputTotal: '',
+    sellInputPrice: 0,
+    sellInputVolume: 0,
+    sellInputTotal: '',
   }
 
   //Dapp set up
@@ -83,7 +88,7 @@ class App extends Component {
             "address":deployedNetwork2.address,
             "symbol":"ALY",
             "decimals":0,
-            "image":logoAly
+            "image":logoALY
           },
         },
         id: 20,
@@ -99,7 +104,7 @@ class App extends Component {
             "address":deployedNetwork3.address,
             "symbol":"DAI",
             "decimals":0,
-            "image":logoDai
+            "image":logoDAI
           },
         },
         id: 30,
@@ -148,54 +153,19 @@ class App extends Component {
     this.displayTradeHistory();
 
     //listen to events
-    let events1 = this.state.tokenAlyContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
-    (error, event) => { console.log(event);});
+    this.state.tokenAlyContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    async (error, event) => {
+      console.log("event ALY contract: ", event);
+    })
 
-    let events2 = this.state.tokenDaiContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
-    (error, event) => { console.log(event);});
+    this.state.tokenDaiContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    async (error, event) => {
+      console.log("event DAI contract: ", event);
+    })
   }
 
 
-  //Fill order book for example purpose
-  runOrderBookFillingScript = async () => {
-    const { swapAlyContract, tokenAlyContract, tokenDaiContract, tokenAddresses, _orderBookBids } = this.state;
 
-    for(let i=0; i<20; i++){
-      let _price = 99;
-      let _volume = 10;
-      _orderBookBids.push({'type': 'bid', 'price': _price-i, 'volume': _volume+(10*i), 'total': (_price-i) * (_volume+(10*i))});
-    }
-
-    for(let i=0; i<20; i++){
-      let _price = 101;
-      let _volume = 10;
-      _orderBookBids.push({'type': 'ask', 'price': _price+i, 'volume': _volume+(10*i), 'total': (_price+i) * (_volume+(10*i))});
-    }
-
-    // Get the value from the contract to prove it worked.
-    const response2 = await tokenAlyContract.methods.totalSupply().call();
-    const response3 = await tokenAlyContract.methods.getOwner().call();
-    const response4 = await tokenDaiContract.methods.totalSupply().call();
-    const response5 = await tokenDaiContract.methods.getOwner().call();
-    const response6 = await swapAlyContract.methods.getOwner().call();
-
-    // Update state with the result.
-    this.setState({ 
-      tokenAlyAmount: response2, 
-      tokenAlyOwner: response3, 
-      tokenDaiAmount: response4,
-      tokenDaiOwner: response5,
-      swapAlyOwner: response6
-    });
-
-    //For each token pair, creates an order book
-    if(tokenAddresses.size > 1){
-
-    }
-
-    //Display order book
-    this.displayOrderBook();
-  }
 
   callApi = async () => {
     const response = await fetch('/api/hello');
@@ -232,26 +202,6 @@ class App extends Component {
     //Fill _orderBookBids & _orderBooksAsks
     _orderBookBids = orderBookEntire['orderBook']['DAIALY']['bids'];
     _orderBookAsks = orderBookEntire['orderBook']['DAIALY']['asks'];
-
-    //Sort array
-    // function sortDecrease(a, b){
-    //   if (a.price === b.price) {
-    //       return 0;
-    //   } else {
-    //       return (a.price > b.price) ? -1 : 1;
-    //   }
-    // }
-
-    // function sortIncrease(a, b){
-    //   if (a.price === b.price) {
-    //       return 0;
-    //   } else {
-    //       return (a.price < b.price) ? -1 : 1;
-    //   }
-    // }
-
-    // _orderBookBids.sort(sortDecrease);
-    // _orderBookAsks.sort(sortIncrease);
 
     //Reset DOM order book
     let orderBookBidsBody = document.getElementById('orderBookBidsBody');
@@ -331,15 +281,14 @@ class App extends Component {
     if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
 
     //Fill tradeHistory
-    console.log(tradeHistoryEntire);
     tradeHistory = tradeHistoryEntire['tradeHistory']['trades'];
 
     //Sort array
     function sortDecreaseTime(a, b){
-      if (a.time === b.time) {
+      if (a.timestamp === b.timestamp) {
           return 0;
       } else {
-          return (a.time > b.time) ? -1 : 1;
+          return (a.timestamp > b.timestamp) ? -1 : 1;
       }
     }
 
@@ -364,7 +313,8 @@ class App extends Component {
           let newTradeVolume = document.createElement('th');
           newTradeVolume.textContent = tradeHistory[i].volume.toFixed(2);
           let newTradeTime = document.createElement('th');
-          newTradeTime.textContent = tradeHistory[i].time;
+          newTradeTime.className += "tradeTimestamp";
+          newTradeTime.textContent = tradeHistory[i].timestamp;
 
           newTrade.appendChild(newTradePrice);
           newTrade.appendChild(newTradeVolume);
@@ -376,26 +326,7 @@ class App extends Component {
   }
 
   
-  // handleSubmit = async e => {
-  //   e.preventDefault();
-  //   const response = await fetch('/api/world', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ post: this.state.post }),
-  //   });
-  //   const body = await response.text();
-    
-  //   this.setState({ responseToPost: body });
-  // }
-
   checkOrders = async () => {
-    //maj orderbook
-    //maj decrease approve seller
-    //maj decrease approve buyer
-    //maj tradeHistory
-
     const callCheck = await fetch('/api/swap');
     const callCheckResponse = await callCheck.json();
     if (callCheck.status !== 200) throw Error(callCheckResponse.message);
@@ -403,12 +334,12 @@ class App extends Component {
   }
 
   buyOrder = async (_volume, _price) => {
-    const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress, _orderBookBids, bestSellerPrice } = this.state;
+    const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress } = this.state;
     this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
     
     await tokenDaiContract.methods.approve(swapAlyOwner, _volume * _price).send({from: accounts[0]})
 
-    const response = await fetch('/api/insert', {
+    await fetch('/api/insert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -420,12 +351,12 @@ class App extends Component {
   }
 
   sellOrder = async (_volume, _price) => {
-    const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress, _orderBookBids } = this.state;
+    const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress } = this.state;
     this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
     await tokenAlyContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
 
-    const response = await fetch('/api/insert', {
+    await fetch('/api/insert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -436,6 +367,46 @@ class App extends Component {
     await this.checkOrders();
   }
 
+  //AUTOFILL BUY TOKEN FORM
+  handleBuyPrice = async (e) => {
+    if (e.target.value === '') {
+      this.setState({buyInputTotal: ''});      
+    }
+    this.setState({buyInputPrice: e.target.value}, this.updateBuyTotal)
+  }
+  handleBuyVolume = async (e) => {
+    if (e.target.value === '') {
+      this.setState({buyInputTotal: ''});      
+    }
+    this.setState({buyInputVolume: e.target.value}, this.updateBuyTotal)
+  }
+  updateBuyTotal = async () => {
+    let buyTotal = this.state.buyInputPrice * this.state.buyInputVolume;
+    if (buyTotal > 0){
+      this.setState({buyInputTotal: buyTotal});
+    }
+  }
+
+  //AUTOFILL SELL TOKEN FORM
+  handleSellPrice = async (e) => {
+    if (e.target.value === '') {
+      this.setState({sellInputTotal: ''});      
+    }
+    this.setState({sellInputPrice: e.target.value}, this.updateSellTotal)
+  }
+  handleSellVolume = async (e) => {
+    if (e.target.value === '') {
+      this.setState({sellInputTotal: ''});      
+    }
+    this.setState({sellInputVolume: e.target.value}, this.updateSellTotal)
+  }
+  updateSellTotal = async () => {
+    let sellTotal = this.state.sellInputPrice * this.state.sellInputVolume;
+    if (sellTotal > 0){
+      this.setState({sellInputTotal: sellTotal});
+    }
+  }
+
   render() {
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
@@ -444,7 +415,8 @@ class App extends Component {
       <div className="App">
         <header className="Header">
           <h1 className="Title">Cryptogama</h1>
-          {/*<div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
+          {/*
+          <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
           <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
           <div>The ALY contract address is: {this.state.tokenAlyContractAddress}</div>
           <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
@@ -452,34 +424,43 @@ class App extends Component {
           <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
           <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>
           <div>The swapAly contract address: {this.state.swapAlyContractAddress}</div>
-          <div>The current allowance is set to: {this.state.allowance}</div>*/}
+          */}
           <div className="description">Swap and trade ERC20 tokens</div>
           <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
         </header>      
 
         <div className="tokenSelector">
-          <h2>Select token pair</h2>
-          <select name="startToken" id="startToken">
-            <option value="ALY">ALY</option>
-            <option value="DAI">DAI</option>
-          </select>
-          <select name="endToken" id="endToken">
-            <option value="ALY">ALY</option>
-            <option value="DAI">DAI</option>
-          </select>
+          <div className="pairTitle">Selected pair:</div>
+          <div>
+            <img src={logoALY} alt="logo ALY token" className="logoALY"/>
+            <div className="nameALY">ALY</div>
+          </div>
+          <div>
+            <img src={logoDAI} alt="logo DAI token" className="logoDAI"/>
+            <div className="nameDAI">DAI</div>
+          </div>
         </div>
 
         <div className="Main">
+
+          {/*MAIN LEFT PART*/}
           <div className="MainLeft">
             <div className="tradeHistoryTitle">Trade history</div>
-            <table id="tradeHistoryTable">
+            <div className="tradeContainer">
+              <table id="tradeHistoryTable">
                 <tbody id="tradeHistoryBody">
                 </tbody>
               </table>
+            </div>
           </div>
 
+          {/*MAIN CENTER PART*/}
           <div className="MainCenter">
-            <div className="graph"></div>
+            <div className="graph">
+              <div className="tbd">
+                ALY price evolution graph (to come...)
+              </div>
+            </div>
             <div className="buySellToken">
               <div className="buyToken">
                 <div className="buyTokenTitle">Buy</div>
@@ -490,27 +471,45 @@ class App extends Component {
                     await this.buyOrder(buyVolume, buyPrice)
                     setTimeout( () => {
                       this.displayOrderBook();
-                    }, 2000);
+                      this.displayTradeHistory();
+                    }, 1000);
                   }}>
                   <div className="fields">
                     <div className="buyFields">
-                      <label for="priceBuy">Price:</label>
+                      <label>Price:</label>
                       <div>
-                        <input className="inputFields" type="text" id="priceBuy" ref={(input) => { this.priceBuy = input }} required/>
+                        <input 
+                          className="inputFields"
+                          type="text"
+                          id="priceBuy"
+                          placeholder={ this.state.bestSellerPrice.toFixed(2) }
+                          onChange={ this.handleBuyPrice }
+                          ref={(input) => { this.priceBuy = input }}
+                          autoComplete="off"
+                          required
+                        />
                         <input className="inputFields2" type="text" id="priceBuy2" value="DAI " disabled/>
                       </div>
                     </div>
                     <div className="buyFields">
-                      <label for="volumeBuy">Volume:</label>
+                      <label>Volume:</label>
                       <div>
-                        <input className="inputFields" type="text" id="volumeBuy" ref={(input) => { this.volumeBuy = input }} required/>
+                        <input
+                          className="inputFields"
+                          type="text"
+                          id="volumeBuy"
+                          onChange={ this.handleBuyVolume }
+                          ref={(input) => { this.volumeBuy = input }}
+                          autoComplete="off"
+                          required
+                        />
                         <input className="inputFields2" type="text" id="volumeBuy2" value="ALY " disabled/>
                       </div>
                     </div>
                     <div className="buyFields">
-                      <label for="totalBuy">Total:</label>
+                      <label>Total:</label>
                       <div>
-                        <input className="inputFields" type="text" id="totalBuy" ref={(input) => { this.totalBuy = this.priceBuy * this.volumeBuy }} />
+                        <input className="inputFields" type="text" id="totalBuy" value={this.state.buyInputTotal} disabled />
                         <input className="inputFields2" type="text" id="totalBuy2" value="DAI " disabled/>
                       </div>
                     </div>
@@ -527,28 +526,46 @@ class App extends Component {
                     await this.sellOrder(sellVolume, sellPrice)
                     setTimeout( () => {
                       this.displayOrderBook();
+                      this.displayTradeHistory();
                     }, 1000);
                   }}>
                   <div className="fields">
                     <div className="buyFields">
-                      <label for="priceSell">Price:</label>
+                      <label>Price:</label>
                       <div>
-                        <input className="inputFields" type="text" id="priceSell" ref={(input) => { this.priceSell = input }} required/>
+                        <input 
+                          className="inputFields"
+                          type="text"
+                          id="priceSell"
+                          placeholder={this.state.bestSellerPrice.toFixed(2)}
+                          onChange={ this.handleSellPrice }
+                          ref={(input) => { this.priceSell = input }}
+                          autoComplete="off"
+                          required
+                        />
                         <input className="inputFields2" type="text" id="priceSell2" value="DAI " disabled/>
                       </div>
                     </div>
                     <div className="buyFields">
-                      <label for="volumeSell">Volume:</label>
+                      <label>Volume:</label>
                       <div>
-                        <input className="inputFields" type="text" id="volumeSell" ref={(input) => { this.volumeSell = input }} required/>
+                        <input
+                          className="inputFields"
+                          type="text"
+                          id="volumeSell"
+                          onChange={ this.handleSellVolume }
+                          ref={(input) => { this.volumeSell = input }}
+                          autoComplete="off"
+                          required
+                        />
                         <input className="inputFields2" type="text" id="volumeSell2" value="ALY " disabled/>
                       </div>
                     </div>
                   </div>
                   <div className="buyFields">
-                    <label for="totalSell">Total:</label>
+                    <label>Total:</label>
                     <div>
-                      <input className="inputFields" type="text" id="totalSell" ref={(input) => { this.totalBuy = this.priceBuy * this.volumeBuy }} />
+                      <input className="inputFields" type="text" id="totalSell" value={this.state.sellInputTotal} disabled />
                       <input className="inputFields2" type="text" id="totalSell2" value="DAI " disabled/>
                     </div>
                   </div>
@@ -558,26 +575,12 @@ class App extends Component {
             </div>
             
             <div className="checkOrders">
-              <h2>Check orders</h2>
-              <form onSubmit={async (event) => {
-                  event.preventDefault()
-                  this.checkOrders()
-                  setTimeout( () => {
-                      this.displayOrderBook();
-                    }, 1000);
-                }}>
-                <button type="submit">Swap</button>  
-              </form>
-              <form onSubmit={(event) => {
-                  event.preventDefault()
-                  this.displayOrderBook()
-                }}>
-                <button type="submit">Display</button>  
-              </form>
+              <div className="yourOrders">Your open orders: </div>
+              <table className="userOrders"></table>
             </div>
-            
           </div>
 
+          {/*MAIN RIGHT PART*/}
           <div className="MainRight">
             <div className="sectionOrderBook">
               <div className="orderBookTitles">

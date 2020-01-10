@@ -54,6 +54,28 @@ code {
 .tokenSelector {
   background-color: $secondGrey;
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  height: 70px;
+  padding-bottom: 8px;
+}
+
+.pairTitle{
+  font-size: medium;
+  margin-bottom: 25px;
+  margin-left: 40px;
+}
+
+.logoALY{
+  width: 50px;
+  margin-left: 10px;
+}
+
+.logoDAI{
+  width: 40px;
+  margin-left: 5px;
+  margin-bottom: 4px;
 }
 
 .Main {
@@ -66,6 +88,7 @@ code {
   border: 1px solid $secondGrey; 
 }
 
+
 .tradeHistoryTitle{
   font-size: 12px;
   text-align: left;
@@ -74,9 +97,26 @@ code {
   margin-left: 5px;
 }
 
+.tradeContainer{
+  height: 520px;
+}
+
+#tradeHistoryTable{
+  height: inherit;
+}
+
+#tradeHistoryTable tbody{
+  display: table-cell;
+  vertical-align: top;
+}
+
 #tradeHistoryTable th{
   vertical-align: baseline;
-  width: 40px;
+  width: 80px;
+}
+
+.tradeTimestamp{
+  width: auto !important;
 }
 
 .MainCenter{
@@ -88,6 +128,12 @@ code {
 
 .graph{
   height: 300px;
+  background-color: $darkBackground;
+}
+
+.tbd{
+  text-align: center;
+  padding-top: 50%;
 }
 
 .buySellToken{
@@ -160,6 +206,17 @@ input:-internal-autofill-selected {
   color: $fontColor;
 }
 
+.yourOrders{
+  text-align: left;
+  margin: 10px;
+  font-size: medium;
+}
+
+.userOrders{
+  background-color: $darkBackground;
+  height: 60px;
+}
+
 .MainRight{
   width: 300px;
   border: 1px solid $secondGrey;
@@ -181,17 +238,18 @@ table {
   margin: auto;
   font-weight: normal;
   width: -webkit-fill-available;
-  height: 245px;
   background-color: $darkBackground;
   table-layout: auto;
 }
 
 table #orderBookAsksBody{
+  height: 245px;
   display: table-cell;
   vertical-align: bottom;
 }
 
 table #orderBookBidsBody{
+  height: 245px;
   display: table-cell;
   vertical-align: top;
 }
