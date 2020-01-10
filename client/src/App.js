@@ -1,4 +1,4 @@
-//CRYPTOGAMA DEX REACT CLIENT:
+//CRYPTOGAMA REACT CLIENT:
 
 //1.IMPORTS
 //2.DAPP SET UP
@@ -23,6 +23,7 @@ import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 //IMPORT COMPONENTS
 import Header from './components/Header';
 import TokenSelector from './components/TokenSelector';
+import UserBalance from './components/UserBalance';
 import TradeHistory from './components/TradeHistory';
 import Graph from './components/Graph';
 import Orderbook from './components/Orderbook';
@@ -32,6 +33,8 @@ import UserOrders from './components/UserOrders';
 import "./App.css";
 import metaLogoALY from "./logoALY.jpg";
 import metaLogoDAI from "./logoDAI.jpg";
+import logoALY from "./ALY2020.png";
+import logoDAI from "./DAI2020.png";
 
 
 
@@ -68,6 +71,8 @@ class App extends Component {
       sellInputPrice: 0,
       sellInputVolume: 0,
       sellInputTotal: '',
+      userALYBalance: 0,
+      userDAIBalance: 0,
     }
   }
 
@@ -168,6 +173,7 @@ class App extends Component {
     //DISPLAY DATA
     this.displayOrderBook();
     this.displayTradeHistory();
+    this.getUserBalance();
 
     //LISTEN TO TOKEN CONTRACTS EVENTS
     this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
@@ -365,50 +371,62 @@ class App extends Component {
 
   //SEND BUY ORDER TO SERVER
   buyOrder = async (_volume, _price) => {
-
-    //RETRIEVE DATA FROM STATE AND PREPARE ORDER
     const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress } = this.state;
-    this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
-    
-    let volumeToApprove = _volume * _price;
 
-    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
-    await tokenDaiContract.methods.approve(swapAlyOwner, volumeToApprove).send({from: accounts[0]})
+    //CHECK IF USER HAVE SUFFICIENT BALANCE
+    let buyerBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
+    if ( buyerBalance/100 >= (_volume*_price) ) {
 
-    //SEND ORDER TO SERVER
-    await fetch('/api/insert', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.pushedOrder }),
-    });
+      //RETRIEVE DATA FROM STATE AND PREPARE ORDER
+      this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
+      
+      let volumeToApprove = _volume * _price;
 
-    //TRY TO FIND MATCHING ORDERS FOR SWAP
-    await this.checkOrders()
+      //EXECUTE APPROVAL TO THE TOKEN CONTRACT
+      await tokenDaiContract.methods.approve(swapAlyOwner, volumeToApprove*100).send({from: accounts[0]})
+
+      //SEND ORDER TO SERVER
+      await fetch('/api/insert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post: this.state.pushedOrder }),
+      });
+
+      //TRY TO FIND MATCHING ORDERS FOR SWAP
+      await this.checkOrders()
+
+    } else alert("Unsifficient balance")
   }
 
   //SEND SELL ORDER TO SERVER
   sellOrder = async (_volume, _price) => {
-
-    //RETRIEVE DATA FROM STATE AND PREPARE ORDER
     const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress } = this.state;
-    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
-    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
-    await tokenAlyContract.methods.approve(swapAlyOwner, _volume).send({from: accounts[0]});
+    //CHECK IF USER HAVE SUFFICIENT BALANCE
+    let sellerBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
+    if (sellerBalance/100 >= _volume) {
 
-    //SEND ORDER TO SERVER
-    await fetch('/api/insert', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.pushedOrder }),
-    });
+      //RETRIEVE DATA FROM STATE AND PREPARE ORDER
+      this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
-    //TRY TO FIND MATCHING ORDERS FOR SWAP
-    await this.checkOrders();
+      //EXECUTE APPROVAL TO THE TOKEN CONTRACT
+      await tokenAlyContract.methods.approve(swapAlyOwner, _volume*100).send({from: accounts[0]});
+
+      //SEND ORDER TO SERVER
+      await fetch('/api/insert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ post: this.state.pushedOrder }),
+      });
+
+      //TRY TO FIND MATCHING ORDERS FOR SWAP
+      await this.checkOrders();
+    
+    } else  alert("Unsifficient balance")
   }
 
 
@@ -458,6 +476,20 @@ class App extends Component {
     }
   }
 
+  //GET USER'S TOKEN BALANCE
+  getUserBalance = async () => {
+    const { accounts, tokenAlyContract, tokenDaiContract } = this.state;
+
+    //CHECK IF USER HAVE SUFFICIENT BALANCE
+    let ALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
+    let DAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
+  
+    this.setState({
+      userALYBalance: (ALYBalance/100).toFixed(2),
+      userDAIBalance: (DAIBalance/100).toFixed(2)
+    });
+  }
+
 
 
 
@@ -477,8 +509,11 @@ class App extends Component {
 
 
         {/*TOKEN SELECTOR*/}
-        <TokenSelector />
+        <div className="navbar">
+          <TokenSelector />
 
+          <UserBalance userALYBalance={ this.state.userALYBalance } userDAIBalance={ this.state.userDAIBalance } />
+        </div>
 
         {/*MAIN SECTION*/}
         <div className="Main">

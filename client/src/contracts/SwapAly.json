@@ -100,9 +100,9 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.12+commit.7709ece9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountSold\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountBought\",\"type\":\"uint256\"}],\"name\":\"TokenExchanged\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[],\"name\":\"getOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"sellerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sellerTokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountSeller\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"buyerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"buyerTokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountBuyer\",\"type\":\"uint256\"}],\"name\":\"swapToken\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/bobby/cryptogama4/contracts/SwapAly.sol\":\"SwapAly\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/bobby/cryptogama4/contracts/Context.sol\":{\"keccak256\":\"0xa5ce23dc71caa76caf782712dc8fef8dd2390c277f71e286474e9894d6ece97f\",\"urls\":[\"bzz-raw://cb14fd3bdc804349f070f0a372a2b6819bfe6e1b186080bb4850a1e1d024a16f\",\"dweb:/ipfs/Qmcp5Nhsq3PRRgXQYeqY41FMY1G2YbYC4JCWxFrst24MsC\"]},\"/home/bobby/cryptogama4/contracts/ERC20.sol\":{\"keccak256\":\"0x3de63f9713a68c911434c3924616f9dce66536e0448c29a35c2a0d082ee58b4c\",\"urls\":[\"bzz-raw://373b66345a5f45506e2c5c858b1611a32afbbba46b79d02251e4484bf6137924\",\"dweb:/ipfs/QmYwaFgpy99Y5DkiCzmfiCK34jdH2oDeTkAh2DZb1gzGJK\"]},\"/home/bobby/cryptogama4/contracts/IERC20.sol\":{\"keccak256\":\"0x694b989b371044e7a6730ce6d4b3da45679b7d5a5ff57cb6d6d84d567add5312\",\"urls\":[\"bzz-raw://529be491ce5d5ff6de81273a85d17fdd0a7e1f50121b7a8b886f3612ad39caa1\",\"dweb:/ipfs/Qmd2KFSZtkSeyUES6z2c2UdZhMQ6AgKLz6DXkqX5ApyfFE\"]},\"/home/bobby/cryptogama4/contracts/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"/home/bobby/cryptogama4/contracts/SwapAly.sol\":{\"keccak256\":\"0x35db0c24fb11bf693e98580f38ee08813f5eb1faa12bb93b966937fd044e7852\",\"urls\":[\"bzz-raw://bd15983d467c65fe2f41be023709a09203ba037afecedba275246eea969c7951\",\"dweb:/ipfs/QmaXgDGcfaTK6KcDRfYLNq6bbkoMdsHWqJv5Jk6bEoTgqR\"]},\"/home/bobby/cryptogama4/contracts/TokenERC20Aly.sol\":{\"keccak256\":\"0xb6c3fb9f2f14a4befc5cc733ed96f3c6373f008efa0624c251429e5dbfe39ae6\",\"urls\":[\"bzz-raw://93f94a6b871ce2e8ea5e194b556faf932d106c4e65fad9a34529e2b66880f950\",\"dweb:/ipfs/QmRVP6tFfVCCthJKb8b7gg738CnryMqoXVkA12ntPG8P58\"]},\"/home/bobby/cryptogama4/contracts/TokenERC20Dai.sol\":{\"keccak256\":\"0xd0c471cd6c6ecf42f8ad8104dcf1cc981b6581d00d0e8e8345317f951f07e820\",\"urls\":[\"bzz-raw://00eae15ba41c518fcfac8e7f6aa5190f7c51975e54143951534888fa3926f8cf\",\"dweb:/ipfs/QmTTUJF2dRYNgVYk78gidUdMte6yoXao9cHc3KXxhYDFrM\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610425806100606000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063893d20e81461003b578063ed563f8e14610085575b600080fd5b610043610155565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61013b600480360360c081101561009b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061017e565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b60008086905060008490508173ffffffffffffffffffffffffffffffffffffffff166323b872dd8a888a6040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561024457600080fd5b505af1158015610258573d6000803e3d6000fd5b505050506040513d602081101561026e57600080fd5b8101908080519060200190929190505050508073ffffffffffffffffffffffffffffffffffffffff166323b872dd878b876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561033b57600080fd5b505af115801561034f573d6000803e3d6000fd5b505050506040513d602081101561036557600080fd5b8101908080519060200190929190505050508573ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f69b4f7d081ba8c7a13dc0ad819546a7aff7bd67d69d55c1824935fce9f26178c8987604051808381526020018281526020019250505060405180910390a35050969550505050505056fea265627a7a723158207d2db3a3e3db15b77d917dfc36239ef846c930bbfa3967dbb4b634082dbd3c4764736f6c634300050c0032",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063893d20e81461003b578063ed563f8e14610085575b600080fd5b610043610155565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61013b600480360360c081101561009b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061017e565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b60008086905060008490508173ffffffffffffffffffffffffffffffffffffffff166323b872dd8a888a6040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561024457600080fd5b505af1158015610258573d6000803e3d6000fd5b505050506040513d602081101561026e57600080fd5b8101908080519060200190929190505050508073ffffffffffffffffffffffffffffffffffffffff166323b872dd878b876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561033b57600080fd5b505af115801561034f573d6000803e3d6000fd5b505050506040513d602081101561036557600080fd5b8101908080519060200190929190505050508573ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f69b4f7d081ba8c7a13dc0ad819546a7aff7bd67d69d55c1824935fce9f26178c8987604051808381526020018281526020019250505060405180910390a35050969550505050505056fea265627a7a723158207d2db3a3e3db15b77d917dfc36239ef846c930bbfa3967dbb4b634082dbd3c4764736f6c634300050c0032",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.12+commit.7709ece9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountSold\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountBought\",\"type\":\"uint256\"}],\"name\":\"TokenExchanged\",\"type\":\"event\"},{\"constant\":true,\"inputs\":[],\"name\":\"getOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"sellerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sellerTokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountSeller\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"buyerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"buyerTokenAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountBuyer\",\"type\":\"uint256\"}],\"name\":\"swapToken\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/bobby/cryptogama4/contracts/SwapAly.sol\":\"SwapAly\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/bobby/cryptogama4/contracts/Context.sol\":{\"keccak256\":\"0xa5ce23dc71caa76caf782712dc8fef8dd2390c277f71e286474e9894d6ece97f\",\"urls\":[\"bzz-raw://cb14fd3bdc804349f070f0a372a2b6819bfe6e1b186080bb4850a1e1d024a16f\",\"dweb:/ipfs/Qmcp5Nhsq3PRRgXQYeqY41FMY1G2YbYC4JCWxFrst24MsC\"]},\"/home/bobby/cryptogama4/contracts/ERC20.sol\":{\"keccak256\":\"0x3de63f9713a68c911434c3924616f9dce66536e0448c29a35c2a0d082ee58b4c\",\"urls\":[\"bzz-raw://373b66345a5f45506e2c5c858b1611a32afbbba46b79d02251e4484bf6137924\",\"dweb:/ipfs/QmYwaFgpy99Y5DkiCzmfiCK34jdH2oDeTkAh2DZb1gzGJK\"]},\"/home/bobby/cryptogama4/contracts/IERC20.sol\":{\"keccak256\":\"0x694b989b371044e7a6730ce6d4b3da45679b7d5a5ff57cb6d6d84d567add5312\",\"urls\":[\"bzz-raw://529be491ce5d5ff6de81273a85d17fdd0a7e1f50121b7a8b886f3612ad39caa1\",\"dweb:/ipfs/Qmd2KFSZtkSeyUES6z2c2UdZhMQ6AgKLz6DXkqX5ApyfFE\"]},\"/home/bobby/cryptogama4/contracts/SafeMath.sol\":{\"keccak256\":\"0x640b6dee7a4b830bdfd52b5031a07fc2b12209f5b2e29e5d364a7d37f69d8076\",\"urls\":[\"bzz-raw://31113152e1ddb78fe7a4197f247591ca894e93f916867beb708d8e747b6cc74f\",\"dweb:/ipfs/QmbZaJyXdpsYGykVhHH9qpVGQg9DGCxE2QufbCUy3daTgq\"]},\"/home/bobby/cryptogama4/contracts/SwapAly.sol\":{\"keccak256\":\"0x35db0c24fb11bf693e98580f38ee08813f5eb1faa12bb93b966937fd044e7852\",\"urls\":[\"bzz-raw://bd15983d467c65fe2f41be023709a09203ba037afecedba275246eea969c7951\",\"dweb:/ipfs/QmaXgDGcfaTK6KcDRfYLNq6bbkoMdsHWqJv5Jk6bEoTgqR\"]},\"/home/bobby/cryptogama4/contracts/TokenERC20Aly.sol\":{\"keccak256\":\"0x760ac58b5236d0382bed02614d28e3a61463fd475a701aed06b4d0e3740f7810\",\"urls\":[\"bzz-raw://cbf38351a8c419c0c4395775bfb519888781bf583003cd64ca1f84e7f7633464\",\"dweb:/ipfs/QmZxkJ6p7v1aibvZ91AUDC7m6zMKkfNcdH73GHsPPb8RVF\"]},\"/home/bobby/cryptogama4/contracts/TokenERC20Dai.sol\":{\"keccak256\":\"0x5f48c35226d63bf803d04cb94dfbbbd6dde227262ceeab57ffd98f2aec321421\",\"urls\":[\"bzz-raw://812bc4d1ea1574ff3f10bd1a8822a067176795d809de100b303df089a4c226d5\",\"dweb:/ipfs/QmbQ1HnHQHV75CrZPVR8AKjRTRLoVLFqZo8bqB6ap7G72d\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610425806100606000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063893d20e81461003b578063ed563f8e14610085575b600080fd5b610043610155565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61013b600480360360c081101561009b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061017e565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b60008086905060008490508173ffffffffffffffffffffffffffffffffffffffff166323b872dd8a888a6040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561024457600080fd5b505af1158015610258573d6000803e3d6000fd5b505050506040513d602081101561026e57600080fd5b8101908080519060200190929190505050508073ffffffffffffffffffffffffffffffffffffffff166323b872dd878b876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561033b57600080fd5b505af115801561034f573d6000803e3d6000fd5b505050506040513d602081101561036557600080fd5b8101908080519060200190929190505050508573ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f69b4f7d081ba8c7a13dc0ad819546a7aff7bd67d69d55c1824935fce9f26178c8987604051808381526020018281526020019250505060405180910390a35050969550505050505056fea265627a7a7231582095516607c6c75eebade9cf1924eaef234b0dd54a56dc01bc6b8cb6d6526509ca64736f6c634300050c0032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063893d20e81461003b578063ed563f8e14610085575b600080fd5b610043610155565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61013b600480360360c081101561009b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061017e565b604051808215151515815260200191505060405180910390f35b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b60008086905060008490508173ffffffffffffffffffffffffffffffffffffffff166323b872dd8a888a6040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561024457600080fd5b505af1158015610258573d6000803e3d6000fd5b505050506040513d602081101561026e57600080fd5b8101908080519060200190929190505050508073ffffffffffffffffffffffffffffffffffffffff166323b872dd878b876040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561033b57600080fd5b505af115801561034f573d6000803e3d6000fd5b505050506040513d602081101561036557600080fd5b8101908080519060200190929190505050508573ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f69b4f7d081ba8c7a13dc0ad819546a7aff7bd67d69d55c1824935fce9f26178c8987604051808381526020018281526020019250505060405180910390a35050969550505050505056fea265627a7a7231582095516607c6c75eebade9cf1924eaef234b0dd54a56dc01bc6b8cb6d6526509ca64736f6c634300050c0032",
   "sourceMap": "111:885:5:-;;;273:58;8:9:-1;5:2;;;30:1;27;20:12;5:2;273:58:5;314:10;305:6;;:19;;;;;;;;;;;;;;;;;;111:885;;;;;;",
   "deployedSourceMap": "111:885:5:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;111:885:5;;;;;;;;;;;;;;;;;;;;;;;;337:80;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;423:571;;;;;;13:3:-1;8;5:12;2:2;;;30:1;27;20:12;2:2;423:571:5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;337:80;379:7;404:6;;;;;;;;;;;397:13;;337:80;:::o;423:571::-;603:4;618:23;658:18;618:59;;687:22;726:17;687:57;;755:9;:22;;;778:13;793:12;807;755:65;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;755:65:5;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;755:65:5;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;755:65:5;;;;;;;;;;;;;;;;;830:8;:21;;;852:12;866:13;881:11;830:63;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;830:63:5;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;830:63:5;;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;830:63:5;;;;;;;;;;;;;;;;;947:12;917:70;;932:13;917:70;;;961:12;975:11;917:70;;;;;;;;;;;;;;;;;;;;;;;;423:571;;;;;;;;;;:::o",
   "source": "pragma solidity 0.5.12;\n\nimport \"./SafeMath.sol\";\nimport \"./TokenERC20Aly.sol\";\nimport \"./TokenERC20Dai.sol\";\n\ncontract SwapAly{\n    address private _owner;\n\n    event TokenExchanged(address indexed from, address indexed to, uint256 amountSold, uint256 amountBought);\n\n    constructor () public {\n        _owner = msg.sender;\n    }\n\n    function getOwner() external view returns(address){\n        return _owner;\n    }\n\n    function swapToken(address sellerAddress, address sellerTokenAddress, uint256 amountSeller,  address buyerAddress, address buyerTokenAddress, uint256 amountBuyer) external returns(bool){\n        TokenERC20Aly TokenSell = TokenERC20Aly(sellerTokenAddress);\n        TokenERC20Dai TokenBuy = TokenERC20Dai(buyerTokenAddress);\n\n        TokenSell.transferFrom(sellerAddress, buyerAddress, amountSeller);\n        TokenBuy.transferFrom(buyerAddress, sellerAddress, amountBuyer);\n        \n        emit TokenExchanged(sellerAddress, buyerAddress, amountSeller, amountBuyer);\n    }\n}",
@@ -155,7 +155,7 @@
         "id": 733,
         "nodeType": "ImportDirective",
         "scope": 817,
-        "sourceUnit": 1194,
+        "sourceUnit": 919,
         "src": "80:29:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -362,7 +362,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1208,
+                        "referencedDeclaration": 933,
                         "src": "314:3:5",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -608,7 +608,7 @@
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                        "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                         "typeString": "contract TokenERC20Dai"
                       },
                       "typeName": {
@@ -616,10 +616,10 @@
                         "id": 785,
                         "name": "TokenERC20Dai",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1193,
+                        "referencedDeclaration": 918,
                         "src": "687:13:5",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                          "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                           "typeString": "contract TokenERC20Dai"
                         }
                       },
@@ -656,10 +656,10 @@
                       "name": "TokenERC20Dai",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1193,
+                      "referencedDeclaration": 918,
                       "src": "712:13:5",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_type$_t_contract$_TokenERC20Dai_$1193_$",
+                        "typeIdentifier": "t_type$_t_contract$_TokenERC20Dai_$918_$",
                         "typeString": "type(contract TokenERC20Dai)"
                       }
                     },
@@ -673,7 +673,7 @@
                     "nodeType": "FunctionCall",
                     "src": "712:32:5",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                      "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                       "typeString": "contract TokenERC20Dai"
                     }
                   },
@@ -852,7 +852,7 @@
                         "referencedDeclaration": 786,
                         "src": "830:8:5",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                          "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                           "typeString": "contract TokenERC20Dai"
                         }
                       },
@@ -1263,7 +1263,7 @@
         "id": 733,
         "nodeType": "ImportDirective",
         "scope": 817,
-        "sourceUnit": 1194,
+        "sourceUnit": 919,
         "src": "80:29:5",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1470,7 +1470,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1208,
+                        "referencedDeclaration": 933,
                         "src": "314:3:5",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1716,7 +1716,7 @@
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                        "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                         "typeString": "contract TokenERC20Dai"
                       },
                       "typeName": {
@@ -1724,10 +1724,10 @@
                         "id": 785,
                         "name": "TokenERC20Dai",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1193,
+                        "referencedDeclaration": 918,
                         "src": "687:13:5",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                          "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                           "typeString": "contract TokenERC20Dai"
                         }
                       },
@@ -1764,10 +1764,10 @@
                       "name": "TokenERC20Dai",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1193,
+                      "referencedDeclaration": 918,
                       "src": "712:13:5",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_type$_t_contract$_TokenERC20Dai_$1193_$",
+                        "typeIdentifier": "t_type$_t_contract$_TokenERC20Dai_$918_$",
                         "typeString": "type(contract TokenERC20Dai)"
                       }
                     },
@@ -1781,7 +1781,7 @@
                     "nodeType": "FunctionCall",
                     "src": "712:32:5",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                      "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                       "typeString": "contract TokenERC20Dai"
                     }
                   },
@@ -1960,7 +1960,7 @@
                         "referencedDeclaration": 786,
                         "src": "830:8:5",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_TokenERC20Dai_$1193",
+                          "typeIdentifier": "t_contract$_TokenERC20Dai_$918",
                           "typeString": "contract TokenERC20Dai"
                         }
                       },
@@ -2473,7 +2473,7 @@
     }
   },
   "schemaVersion": "3.0.19",
-  "updatedAt": "2020-01-10T12:05:01.854Z",
+  "updatedAt": "2020-01-10T18:03:56.089Z",
   "devdoc": {
     "methods": {}
   },

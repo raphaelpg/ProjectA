@@ -12,10 +12,10 @@ contract TokenERC20Aly is ERC20 {
     constructor() public {
         name = "ERC20 Token Aly";
         symbol = "ALY";
-        decimals = 0;
+        decimals = 2;
         _owner = msg.sender;
 
-        _mint(msg.sender, 1000);
+        _mint(msg.sender, 100000);
     }
 
     function getOwner() external view returns(address) {

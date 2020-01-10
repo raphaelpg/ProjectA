@@ -12,10 +12,10 @@ contract TokenERC20Dai is ERC20 {
     constructor() public {
         name = "ERC20 Token Dai";
         symbol = "DAI";
-        decimals = 0;
+        decimals = 2;
         _owner = msg.sender;
         
-        _mint(msg.sender, 10000);
+        _mint(msg.sender, 1000000);
     }
 
     function getOwner() external view returns(address) {

@@ -1,3 +1,11 @@
+//CRYPTOGAMA SERVER
+//A.DEPLOY SWAP CONTRACT
+//B.SERVER FUNCTIONS
+
+
+
+//A.DEPLOY SWAP CONTRACT
+
 //IMPORT LIBRARIES
 const Web3 = require("web3");
 const SwapALYJSON = require("./client/src/contracts/SwapAly.json");
@@ -46,7 +54,7 @@ deploySwapContract();
 
 
 
-//SERVER FUNCTIONS:
+//B.SERVER FUNCTIONS
 	//1.IMPORT LIBRARIES
 	//2.SEND DATA TO CLIENT
 	//3.SAVE DATA RECEIVED FROM CLIENT TO DATABASE
@@ -186,10 +194,10 @@ checkOrderbook = async () => {
     	if (orderBook.DAIALY.asks[0] && orderBook.DAIALY.bids[0]) {
 
 	    	//RETRIEVE LOWEST ASKS AND HIGHEST BID PARAMETERS
-		    let seller = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].seller;
-		    let sellerTokenAddress = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].tokenContractAddress;	
-		    let sellerPrice = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].price;
-		    let sellerVolume = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume;
+		    let seller = orderBook.DAIALY.asks[0].seller;
+		    let sellerTokenAddress = orderBook.DAIALY.asks[0].tokenContractAddress;	
+		    let sellerPrice = orderBook.DAIALY.asks[0].price;
+		    let sellerVolume = orderBook.DAIALY.asks[0].volume;
 		    
 		    let buyer = orderBook.DAIALY.bids[0].buyer;
 		    let buyerTokenAddress = orderBook.DAIALY.bids[0].tokenContractAddress;
@@ -218,16 +226,16 @@ checkOrderbook = async () => {
 			    	" buyer token: ", buyerTokenAddress,
 			    	" cost ", swapCost
 			    )
-					await SwapAlyContract.methods.swapToken(seller, sellerTokenAddress, swapVolume, buyer, buyerTokenAddress, swapCost)
+					await SwapAlyContract.methods.swapToken(seller, sellerTokenAddress, swapVolume*100, buyer, buyerTokenAddress, swapCost*100)
 					.send({from: serverAddress, gas:3000000})
 					.then(() => {
 						console.log("Swap transaction success");
 
 						//UPDATE EACH ORDER PARAMETERS (AND REMOVE ORDER IF VOLUME IS 0)
-						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume -= swapVolume;
-						orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].total = orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume * orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].price;
-						if (orderBook.DAIALY.asks[orderBook.DAIALY.asks.length-1].volume == 0) {
-							orderBook.DAIALY.asks.splice(orderBook.DAIALY.asks.length-1, 1);
+						orderBook.DAIALY.asks[0].volume -= swapVolume;
+						orderBook.DAIALY.asks[0].total = orderBook.DAIALY.asks[0].volume * orderBook.DAIALY.asks[0].price;
+						if (orderBook.DAIALY.asks[0].volume == 0) {
+							orderBook.DAIALY.asks.splice(0, 1);
 						}
 						orderBook.DAIALY.bids[0].volume -= swapVolume;
 						orderBook.DAIALY.bids[0].total = orderBook.DAIALY.bids[0].volume * orderBook.DAIALY.bids[0].price;
@@ -257,7 +265,7 @@ checkOrderbook = async () => {
 							  //SET TRANSACTION TIMESTAMP
 								let today = new Date();
 								let dd = String(today.getDate()).padStart(2, '0');
-								let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+								let mm = String(today.getMonth() + 1).padStart(2, '0');
 								let yyyy = today.getFullYear();
 								let time = ("0" + today.getHours()).slice(-2) + ":" + ("0" + today.getMinutes()).slice(-2) + ":" + ("0" + today.getSeconds()).slice(-2);
 								today =  dd + '/' + mm + '/' + yyyy;
@@ -296,7 +304,7 @@ checkOrderbook = async () => {
 }
 
 
-//TRY SWAP CALLING CHECKORDERBOOK FUNCTION
+//SWAP CALLING CHECKORDERBOOK FUNCTION
 app.get('/api/swap',async (req, res) => {
 	await checkOrderbook()
 	.then(() => {
