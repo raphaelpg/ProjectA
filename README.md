@@ -79,6 +79,8 @@ Three Metamask accounts are used:
 	Account #2: the owner of ALY ERC-20 tokens  
 	Account #3: the owner of DAI (ERC-20 tokens in this example)  
 
+After changing account in Metamask, you might need to refresh the browser for the change to be considered.  
+
 Select the account#2 in Metamask and place a Sell order, setting the price and the volume of ALY you want to sell and clicking on the Sell button.  
 The order should appear in the order book.
 
