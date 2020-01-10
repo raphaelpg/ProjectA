@@ -49,6 +49,11 @@ code {
 .ServerStatus {
   margin-right: 2%;
   margin-top: 2%;
+  color: $orangeGama;
+}
+
+.ServerStatusTitle {
+  color: $fontColor;
 }
 
 .tokenSelector {
@@ -98,7 +103,7 @@ code {
 }
 
 .tradeContainer{
-  height: 520px;
+  height: 510px;
 }
 
 #tradeHistoryTable{
@@ -141,13 +146,13 @@ table tr{
 }
 
 .graph{
-  height: 300px;
+  height: 280px;
   background-color: $darkBackground;
 }
 
 .tbd{
   text-align: center;
-  padding-top: 50%;
+  padding-top: 150px;
 }
 
 .buySellToken{

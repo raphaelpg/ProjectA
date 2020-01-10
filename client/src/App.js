@@ -17,14 +17,19 @@ import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
 
 //IMPORT ERC20 TOKEN CONTRACTS
-//import SwapAlyContract from "./contracts/SwapAly.json";
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
 
+//IMPORT COMPONENTS
+import Header from './components/Header';
+import TokenSelector from './components/TokenSelector';
+import TradeHistory from './components/TradeHistory';
+import Graph from './components/Graph';
+import Orderbook from './components/Orderbook';
+import UserOrders from './components/UserOrders';
+
 //IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
-import logoALY from "./ALY2020.png";
-import logoDAI from "./DAI2020.png";
 import metaLogoALY from "./logoALY.jpg";
 import metaLogoDAI from "./logoDAI.jpg";
 
@@ -35,40 +40,35 @@ class App extends Component {
 //2.DAPP SET UP
 
   //STATE SET UP
-  state = { 
-    web3: null,
-    accounts: null,
-    swapAlyContract: null,
-    swapAlyOwner: null,
-    swapAlyContractAddress: null,
-    tokenAlyContract: null,
-    tokenAlyAmount: 0,
-    tokenAlyOwner: null,
-    tokenAlyContractAddress: null,
-    tokenDaiContract: null,
-    tokenDaiAmount: 0,
-    tokenDaiOwner: null,
-    tokenDaiContractAddress: null,
-    tokenAddresses: null,
-    _orderBookBids: [],
-    _orderBookAsks: [],
-    tradeHistory: [],
-    serverStatus: '',
-    post: '',
-    responseToPost: '',
-    pushedOrder: '',
-    bestSellerPrice: 0,
-    bestSellerVolume: 0,
-    bestSellerAddress: '',
-    bestBuyerPrice: 0,
-    bestBuyerVolume: 0,
-    bestBuyerAddress: '',
-    buyInputPrice: 0,
-    buyInputVolume: 0,
-    buyInputTotal: '',
-    sellInputPrice: 0,
-    sellInputVolume: 0,
-    sellInputTotal: '',
+  constructor(props) {
+    super(props);
+    this.state = { 
+      web3: null,
+      accounts: null,
+      swapAlyContract: null,
+      swapAlyOwner: null,
+      swapAlyContractAddress: null,
+      tokenAlyContract: null,
+      tokenAlyContractAddress: null,
+      tokenDaiContract: null,
+      tokenDaiContractAddress: null,
+      tokenAddresses: null,
+      _orderBookBids: [],
+      _orderBookAsks: [],
+      tradeHistory: [],
+      serverStatus: '',
+      post: '',
+      responseToPost: '',
+      pushedOrder: '',
+      bestSellerPrice: 0,
+      bestBuyerPrice: 0,
+      buyInputPrice: 0,
+      buyInputVolume: 0,
+      buyInputTotal: '',
+      sellInputPrice: 0,
+      sellInputVolume: 0,
+      sellInputTotal: '',
+    }
   }
 
   //DAPP CONFIGURATION
@@ -150,7 +150,7 @@ class App extends Component {
     //this.runOrderBookFillingScript();
 
     //SET SERVER STATUS TO STATE
-    this.setState({serverStatus: "disconnected"});
+    this.setState({ serverStatus: "disconnected" });
     this.callApi()
       .then(res => this.setState({ serverStatus: res.express }))
       .catch(err => console.log(err));
@@ -170,12 +170,12 @@ class App extends Component {
     this.displayTradeHistory();
 
     //LISTEN TO TOKEN CONTRACTS EVENTS
-    this.state.tokenAlyContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
       console.log("event ALY contract: ", event);
     })
 
-    this.state.tokenDaiContract.events.Approval({fromBlock: 0, toBlock: 'latest'},
+    this.state.tokenDaiContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
       console.log("event DAI contract: ", event);
     })
@@ -287,11 +287,11 @@ class App extends Component {
 
     //SAVE BEST PRICES INTO THE STATE
     if (_orderBookAsks[0]){
-      this.setState({ bestSellerPrice: _orderBookAsks[0].price, bestSellerVolume: _orderBookAsks[0].volume, bestSellerAddress: _orderBookAsks[0].seller });
+      this.setState({ bestSellerPrice: _orderBookAsks[0].price });
     }
 
     if (_orderBookBids[0]){
-      this.setState({ bestBuyerPrice: _orderBookBids[0].buyer, bestBuyerVolume: _orderBookBids[0].volume, bestBuyerAddress: _orderBookBids[0].buyer });
+      this.setState({ bestBuyerPrice: _orderBookBids[0].buyer });
     }
   }
 
@@ -370,8 +370,10 @@ class App extends Component {
     const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress } = this.state;
     this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
     
+    let volumeToApprove = _volume * _price;
+
     //EXECUTE APPROVAL TO THE TOKEN CONTRACT
-    await tokenDaiContract.methods.approve(swapAlyOwner, _volume * _price).send({from: accounts[0]})
+    await tokenDaiContract.methods.approve(swapAlyOwner, volumeToApprove).send({from: accounts[0]})
 
     //SEND ORDER TO SERVER
     await fetch('/api/insert', {
@@ -419,40 +421,40 @@ class App extends Component {
   //AUTOCOMPLETE BUY TOKEN FORM
   handleBuyPrice = async (e) => {
     if (e.target.value === '') {
-      this.setState({buyInputTotal: ''});      
+      this.setState({ buyInputTotal: '' });      
     }
-    this.setState({buyInputPrice: e.target.value}, this.updateBuyTotal)
+    this.setState({ buyInputPrice: e.target.value }, this.updateBuyTotal)
   }
   handleBuyVolume = async (e) => {
     if (e.target.value === '') {
-      this.setState({buyInputTotal: ''});      
+      this.setState({ buyInputTotal: '' });      
     }
-    this.setState({buyInputVolume: e.target.value}, this.updateBuyTotal)
+    this.setState({ buyInputVolume: e.target.value }, this.updateBuyTotal)
   }
   updateBuyTotal = async () => {
     let buyTotal = this.state.buyInputPrice * this.state.buyInputVolume;
     if (buyTotal > 0){
-      this.setState({buyInputTotal: buyTotal});
+      this.setState({ buyInputTotal: buyTotal });
     }
   }
 
   //AUTOCOMPLETE SELL TOKEN FORM
   handleSellPrice = async (e) => {
     if (e.target.value === '') {
-      this.setState({sellInputTotal: ''});      
+      this.setState({ sellInputTotal: '' });      
     }
-    this.setState({sellInputPrice: e.target.value}, this.updateSellTotal)
+    this.setState({ sellInputPrice: e.target.value }, this.updateSellTotal)
   }
   handleSellVolume = async (e) => {
     if (e.target.value === '') {
-      this.setState({sellInputTotal: ''});      
+      this.setState({ sellInputTotal: '' });      
     }
-    this.setState({sellInputVolume: e.target.value}, this.updateSellTotal)
+    this.setState({ sellInputVolume: e.target.value }, this.updateSellTotal)
   }
   updateSellTotal = async () => {
     let sellTotal = this.state.sellInputPrice * this.state.sellInputVolume;
     if (sellTotal > 0){
-      this.setState({sellInputTotal: sellTotal});
+      this.setState({ sellInputTotal: sellTotal });
     }
   }
 
@@ -471,36 +473,11 @@ class App extends Component {
 
 
         {/*HEADER*/}
-        <header className="Header">
-          <h1 className="Title">Cryptogama</h1>
-          {/*
-          <div>The amount of ALY tokens is: {this.state.tokenAlyAmount}</div>
-          <div>The ALY contract owner is: {this.state.tokenAlyOwner}</div>
-          <div>The ALY contract address is: {this.state.tokenAlyContractAddress}</div>
-          <div>The amount of DAI tokens is: {this.state.tokenDaiAmount}</div>
-          <div>The DAI contract owner is: {this.state.tokenDaiOwner}</div>
-          <div>The DAI contract address is: {this.state.tokenDaiContractAddress}</div>
-          <div>The swapAly contract owner is: {this.state.swapAlyOwner}</div>
-          <div>The swapAly contract address: {this.state.swapAlyContractAddress}</div>
-          */}
-          <div className="description">Swap and trade ERC20 tokens</div>
-          <p className="ServerStatus">Server status: {this.state.serverStatus}</p>
-        </header>      
+        <Header serverStatus={ this.state.serverStatus } />    
 
 
         {/*TOKEN SELECTOR*/}
-        <div className="tokenSelector">
-          <div className="pairTitle">Selected pair:</div>
-          <div>
-            <img src={logoALY} alt="logo ALY token" className="logoALY"/>
-            <div className="nameALY">ALY</div>
-          </div>
-          <div>
-            <img src={logoDAI} alt="logo DAI token" className="logoDAI"/>
-            <div className="nameDAI">DAI</div>
-          </div>
-        </div>
-
+        <TokenSelector />
 
 
         {/*MAIN SECTION*/}
@@ -509,35 +486,23 @@ class App extends Component {
 
           {/*MAIN LEFT PART*/}
           <div className="MainLeft">
-
-            {/*TRADE HISTORY*/}
-            <div className="tradeHistoryTitle">Trade history</div>
-            <div className="tradeContainer">
-              <table id="tradeHistoryTable">
-                <tbody id="tradeHistoryBody">
-                </tbody>
-              </table>
-            </div>
+            <TradeHistory />            
           </div>
 
 
           {/*MAIN CENTER PART*/}
           <div className="MainCenter">
 
-            {/*TOKEN PRICE GRAPH*/}
-            <div className="graph">
-              <div className="tbd">
-                ALY price evolution graph (to come...)
-              </div>
-            </div>
+            {/*TOKEN PRICE GRAPH (EMPTY FOR THE MOMENT)*/}
+            <Graph />
 
             {/*BUY AND SELL FORMS*/}
             <div className="buySellToken">
+              
+              {/*BUY FORM*/}
               <div className="buyToken">
-
-                {/*BUY FORM*/}
                 <div className="buyTokenTitle">Buy</div>
-                <form onSubmit={async (event) => {
+                <form onSubmit={ async (event) => {
                     event.preventDefault()
                     const buyVolume = this.volumeBuy.value
                     const buyPrice = this.priceBuy.value
@@ -557,7 +522,7 @@ class App extends Component {
                           id="priceBuy"
                           placeholder={ this.state.bestSellerPrice.toFixed(2) }
                           onChange={ this.handleBuyPrice }
-                          ref={(input) => { this.priceBuy = input }}
+                          ref={ (input) => { this.priceBuy = input } }
                           autoComplete="off"
                           required
                         />
@@ -572,7 +537,7 @@ class App extends Component {
                           type="text"
                           id="volumeBuy"
                           onChange={ this.handleBuyVolume }
-                          ref={(input) => { this.volumeBuy = input }}
+                          ref={ (input) => { this.volumeBuy = input } }
                           autoComplete="off"
                           required
                         />
@@ -582,7 +547,7 @@ class App extends Component {
                     <div className="buyFields">
                       <label>Total:</label>
                       <div>
-                        <input className="inputFields" type="text" id="totalBuy" value={this.state.buyInputTotal} disabled />
+                        <input className="inputFields" type="text" id="totalBuy" value={ this.state.buyInputTotal } disabled />
                         <input className="inputFields2" type="text" id="totalBuy2" value="DAI " disabled/>
                       </div>
                     </div>
@@ -594,7 +559,7 @@ class App extends Component {
               {/*SELL FORM*/}
               <div className="buyToken">
                 <div className="buyTokenTitle">Sell</div>
-                <form onSubmit={async (event) => {
+                <form onSubmit={ async (event) => {
                     event.preventDefault()
                     const sellVolume = this.volumeSell.value
                     const sellPrice = this.priceSell.value
@@ -603,7 +568,7 @@ class App extends Component {
                       this.displayOrderBook();
                       this.displayTradeHistory();
                     }, 1000);
-                  }}>
+                  } }>
                   <div className="fields">
                     <div className="buyFields">
                       <label>Price:</label>
@@ -612,9 +577,9 @@ class App extends Component {
                           className="inputFields"
                           type="text"
                           id="priceSell"
-                          placeholder={this.state.bestSellerPrice.toFixed(2)}
+                          placeholder={ this.state.bestSellerPrice.toFixed(2) }
                           onChange={ this.handleSellPrice }
-                          ref={(input) => { this.priceSell = input }}
+                          ref={ (input) => { this.priceSell = input } }
                           autoComplete="off"
                           required
                         />
@@ -629,7 +594,7 @@ class App extends Component {
                           type="text"
                           id="volumeSell"
                           onChange={ this.handleSellVolume }
-                          ref={(input) => { this.volumeSell = input }}
+                          ref={ (input) => { this.volumeSell = input } }
                           autoComplete="off"
                           required
                         />
@@ -640,7 +605,7 @@ class App extends Component {
                   <div className="buyFields">
                     <label>Total:</label>
                     <div>
-                      <input className="inputFields" type="text" id="totalSell" value={this.state.sellInputTotal} disabled />
+                      <input className="inputFields" type="text" id="totalSell" value={ this.state.sellInputTotal } disabled />
                       <input className="inputFields2" type="text" id="totalSell2" value="DAI " disabled/>
                     </div>
                   </div>
@@ -649,40 +614,13 @@ class App extends Component {
               </div>
             </div>
             
-            {/*USERS OPEN ORDERS*/}
-            <div className="checkOrders">
-              <div className="yourOrders">Your open orders: </div>
-              <table className="userOrders"></table>
-            </div>
+            <UserOrders />
           </div>
 
 
           {/*MAIN RIGHT PART*/}
           <div className="MainRight">
-
-            {/*ORDERBOOK SECTION*/}
-            <div className="sectionOrderBook">
-              <div className="orderBookTitles">
-                <div>Price (DAI)</div>
-                <div>Volume (ALY)</div>
-                <div>Total (DAI)</div>
-              </div>
-
-              {/*SELL ORDERBOOK*/}
-              <table id="asks">
-                <tbody id="orderBookAsksBody">
-                </tbody>
-              </table>
-
-              {/*CURRENT PRICE*/}
-              <p className="orderBookPrice">{this.state.bestSellerPrice.toFixed(2)} DAI (Current price)</p>
-
-              {/*BUY ORDERBOOK*/}
-              <table id="bids">
-                <tbody id="orderBookBidsBody">
-                </tbody>
-              </table>
-            </div>
+            <Orderbook bestSellerPrice={ this.state.bestSellerPrice } />
           </div>
 
         </div>
