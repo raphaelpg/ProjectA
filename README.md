@@ -1,6 +1,6 @@
 # Cryptogama
 
-Cryptogama is a decentralized ERC-20 token exchange student project.
+Cryptogama is a decentralized ERC-20 token exchange student project.  
 
 For teaching purposes only, it runs on a local ethereum blockchain and allows you to place buy and sell orders between two tokens: the ALY and the DAI.
 
@@ -13,10 +13,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 To run this application you will need below programs installed on your machine:
 
-Node v10.16.3
-Truffle v5.1.2
-Ganache CLI v6.7.0 (ganache-core: 2.8.0)
-Metamask v7.7.1
+Node v10.16.3  
+Truffle v5.1.2  
+Ganache CLI v6.7.0 (ganache-core: 2.8.0)  
+Metamask v7.7.1  
 
 You will also need a Metamask account.
 
@@ -34,13 +34,14 @@ git clone https://github.com/raphaelpg/ProjectA.git
 
 The application can be started with four steps:
 
-1.Run a local blockchain using ganache-cli:
+1.Local blockchain  
+Run a local blockchain using ganache-cli:
 
 ```
 ganache-cli -p 7545 -i 5777 -m "[YOUR METAMASK MNEMONIC]"
 ```
 
-2.Deploy contracts
+2.Deploy contracts  
 From another console, deploy the contracts on the blockchain with below command line.  
 From the main application directory, run:
 
@@ -50,7 +51,7 @@ truffle migrate --network develop
 Wait for the five transactions to be executed.
 
 
-3.Start server
+3.Start server  
 Then, run Cryptogama server with below command with the same console:
 
 ```
@@ -59,7 +60,7 @@ node server.js
 You should see the message "Swap contract deployed at: [address]" in the console.
 
 
-4.Run client
+4.Run client  
 Then, run the application with below command:
 
 ```
@@ -73,15 +74,15 @@ Wait untill the browser open and Metamask asks for login.
 
 Once the app started, select the network 7545 in Metamask (if not appearing, set it using "Custom RPC" button).
 
-Three Metamask accounts are used:
-	Account #1: owner of the App
-	Account #2: the owner of ALY ERC-20 tokens
-	Account #3: the owner of DAI (ERC-20 tokens in this example)
+Three Metamask accounts are used:  
+	Account #1: owner of the App  
+	Account #2: the owner of ALY ERC-20 tokens  
+	Account #3: the owner of DAI (ERC-20 tokens in this example)  
 
-Select the account#2 in Metamask and place a Sell order, setting the price and the volume of ALY you want to sell and clicking on the Sell button.
+Select the account#2 in Metamask and place a Sell order, setting the price and the volume of ALY you want to sell and clicking on the Sell button.  
 The order should appear in the order book.
 
-Select the account#3 in Metamask, you can place a Buy order with the same price to exchange tokens with account#2.
+Select the account#3 in Metamask, you can place a Buy order with the same price to exchange tokens with account#2.  
 The exchange is automaticaly done when two orders have a matching price.
 
 You can check each token's balance in the App and in Metamask.
