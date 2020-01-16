@@ -33,8 +33,6 @@ import UserOrders from './components/UserOrders';
 import "./App.css";
 import metaLogoALY from "./logoALY.jpg";
 import metaLogoDAI from "./logoDAI.jpg";
-import logoALY from "./ALY2020.png";
-import logoDAI from "./DAI2020.png";
 
 
 
