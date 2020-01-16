@@ -14,23 +14,59 @@ These instructions will get you a copy of the project up and running on your loc
 To run this application you will need below programs installed on your machine:
 
 Node v10.16.3  
-Truffle v5.1.2  
-Ganache CLI v6.7.0 (ganache-core: 2.8.0)  
 Metamask v7.7.1  
-
-You will also need a Metamask account.
 
 This project has been developed and tested on a UNIX operating system.  
 Compatibility with other OS not tested yet.
 
 
-### Installing and starting the app
+### Installing the app
 
-Copy the git project repository using below command line in a new empty folder on your machine:
+The app can be installed within 5 steps:  
+
+1.Download all the files  
+Copy the git project repository using below command line in a new empty folder on your machine:  
 
 ```
 git clone https://github.com/raphaelpg/ProjectA.git
 ```
+
+
+2.Install server dependencies  
+Inside the main app directory, install all dependencies by running below command line:  
+
+```
+npm install
+```
+
+
+3.Install client dependencies  
+Go to the client app directory and again install dependencies by running below command line:  
+
+```
+cd client
+npm install
+```
+
+
+4.Create Metamask network  
+In your browser, open Metamask and select "Custom RPC" to set a new network.  
+Name it as you want and copy below line in URL field:  
+
+```
+http://localhost:7545
+```
+
+
+5.Create Metamask accounts  
+To test the app, three accounts are needed inside the 7545 network.  
+In your browser, open Metamask and check how many accounts are set.  
+Create three accounts if needed by clicking on the top right logo and clicking on "Create Account"  
+
+
+
+
+### Starting the app
 
 The application can be started with four steps:
 
@@ -40,6 +76,7 @@ Run a local blockchain using ganache-cli:
 ```
 ganache-cli -p 7545 -i 5777 -m "[YOUR METAMASK MNEMONIC]"
 ```
+
 
 2.Deploy contracts  
 From another console, deploy the contracts on the blockchain with below command line.  
@@ -51,6 +88,7 @@ truffle migrate --network develop
 Wait for the five transactions to be executed.
 
 
+
 3.Start server  
 Then, run Cryptogama server with below command with the same console:
 
@@ -58,6 +96,7 @@ Then, run Cryptogama server with below command with the same console:
 node server.js
 ```
 You should see the message "Swap contract deployed at: [address]" in the console.
+
 
 
 4.Run client  
@@ -70,27 +109,30 @@ npm run start
 Wait untill the browser open and Metamask asks for login.
 
 
+
 ## Interact with the app
 
-Once the app started, select the network 7545 in Metamask (if not appearing, set it using "Custom RPC" button).
+Once the app started, select the network 7545 in Metamask.
 
 Three Metamask accounts are used:  
 	Account #1: owner of the App  
 	Account #2: the owner of ALY ERC-20 tokens  
 	Account #3: the owner of DAI (ERC-20 tokens in this example)  
 
-After changing account in Metamask, you might need to refresh the browser for the change to be considered.  
+Important: after changing account in Metamask, refresh the browser for the change to be considered.  
 
 Select the account#2 in Metamask and place a Sell order, setting the price and the volume of ALY you want to sell and clicking on the Sell button.  
 The order should appear in the order book.
 
-Select the account#3 in Metamask, you can place a Buy order with the same price to exchange tokens with account#2.  
+Select the account#3 in Metamask, refresh the browser, place a Buy order with the same price to exchange tokens with account#2.  
 The exchange is automaticaly done when two orders have a matching price.
 
 You can check each token's balance in the App and in Metamask.
 
 
+
 ## Running the tests
+
 
 Run a local blockchain using ganache-cli:
 
