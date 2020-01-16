@@ -10,8 +10,8 @@ contract("TokenERC20Aly", function(accounts){
     const recipient = accounts[2];
     const _name = "ERC20 Token Aly";
     const _symbol = "ALY";
-    const _decimals = 0;
-    const _totalSupply = 1000;
+    const _decimals = 2;
+    const _totalSupply = 100000;
 
     //Avant chaque test unitaire  
     beforeEach(async function() {
@@ -92,8 +92,8 @@ contract("TokenERC20Dai", function(accounts){
     const recipient = accounts[2];
     const _name = "ERC20 Token Dai";
     const _symbol = "DAI";
-    const _decimals = 0;
-    const _totalSupply = 10000;
+    const _decimals = 2;
+    const _totalSupply = 1000000;
 
     //Avant chaque test unitaire  
     beforeEach(async function() {
