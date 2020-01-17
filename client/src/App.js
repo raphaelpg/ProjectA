@@ -15,6 +15,7 @@
 //IMPORT
 import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
+import Highcharts from "highcharts/highstock";
 
 //IMPORT ERC20 TOKEN CONTRACTS
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
@@ -69,8 +70,8 @@ class App extends Component {
       sellInputPrice: 0,
       sellInputVolume: 0,
       sellInputTotal: '',
-      userALYBalance: 0,
-      userDAIBalance: 0,
+      // userALYBalance: 0,
+      // userDAIBalance: 0,
     }
   }
 
@@ -171,7 +172,7 @@ class App extends Component {
     //DISPLAY DATA
     this.displayOrderBook();
     this.displayTradeHistory();
-    this.getUserBalance();
+    //this.getUserBalance();
 
     //LISTEN TO TOKEN CONTRACTS EVENTS
     this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
@@ -474,21 +475,6 @@ class App extends Component {
     }
   }
 
-  //GET USER'S TOKEN BALANCE
-  getUserBalance = async () => {
-    const { accounts, tokenAlyContract, tokenDaiContract } = this.state;
-
-    //CHECK IF USER HAVE SUFFICIENT BALANCE
-    let ALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
-    let DAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
-  
-    this.setState({
-      userALYBalance: (ALYBalance/100).toFixed(2),
-      userDAIBalance: (DAIBalance/100).toFixed(2)
-    });
-  }
-
-
 
 
 
@@ -506,11 +492,15 @@ class App extends Component {
         <Header serverStatus={ this.state.serverStatus } />    
 
 
-        {/*TOKEN SELECTOR*/}
+        {/*NAVBAR*/}
         <div className="navbar">
           <TokenSelector />
 
-          <UserBalance userALYBalance={ this.state.userALYBalance } userDAIBalance={ this.state.userDAIBalance } />
+          <UserBalance 
+            accounts={ this.state.accounts }
+            tokenAlyContract={ this.state.tokenAlyContract }
+            tokenDaiContract={ this.state.tokenDaiContract }
+          />
         </div>
 
         {/*MAIN SECTION*/}
@@ -541,8 +531,8 @@ class App extends Component {
                     const buyPrice = this.priceBuy.value
                     await this.buyOrder(buyVolume, buyPrice)
                     setTimeout( () => {
-                      this.displayOrderBook();
-                      this.displayTradeHistory();
+                      this.displayOrderBook()
+                      this.displayTradeHistory()
                     }, 1000);
                   }}>
                   <div className="fields">
@@ -598,8 +588,8 @@ class App extends Component {
                     const sellPrice = this.priceSell.value
                     await this.sellOrder(sellVolume, sellPrice)
                     setTimeout( () => {
-                      this.displayOrderBook();
-                      this.displayTradeHistory();
+                      this.displayOrderBook()
+                      this.displayTradeHistory()
                     }, 1000);
                   } }>
                   <div className="fields">
