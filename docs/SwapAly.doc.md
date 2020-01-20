@@ -15,10 +15,11 @@ The deployer of this contract becomes automatically the owner
 |to|address|the buyer address
 |amountSold|uint256|the amount sold
 |amountBought|uint256|the amount bought
+
 Event containing the seller address, the buyer address, the amount sold and the amount bought
 
 ## getOwner - view
-No parameters
+No parameters  
 Return : contract owner address
 
 ## swapToken - read
@@ -30,5 +31,6 @@ Return : contract owner address
 |buyerAddress|address|the buyer address
 |buyerTokenAddress|address|the adress of the buyer ERC-20
 |amountBuyer|uint256|the amount to be exchanged
+
 Owner of swap contract need the approval of both token owners
 Return : TokenExchanged event
