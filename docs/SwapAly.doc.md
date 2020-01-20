@@ -22,7 +22,7 @@ Event containing the seller address, the buyer address, the amount sold and the 
 No parameters  
 Returns : contract owner address
 
-## swapToken - read
+## swapToken
 |name |type |description
 |-----|-----|-----------
 |sellerAddress|address|the address of the seller
