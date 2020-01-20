@@ -10,7 +10,7 @@ name: ERC20 Token Aly
 symbol: ALY  
 decimals: 2  
 The message sender is the owner.  
-Owner gets initial mint of 100 000 tokens.
+Owner gets initial mint of 1 000 tokens.
 
 ## getOwner - view
 _No parameters_  
