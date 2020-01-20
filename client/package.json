@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "highcharts": "^8.0.0",
     "node-sass": "^4.13.0",
     "react": "16.11.0",
     "react-dom": "16.11.0",
@@ -30,6 +31,10 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000/"
+  "proxy": "http://localhost:5000/",
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
 }
- 
