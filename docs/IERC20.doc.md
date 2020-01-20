@@ -7,7 +7,6 @@ Interface of the ERC20 standard as defined in the EIP. Does not include the opti
 |owner|address|
 |spender|address|
 |value|uint256|
-**Add Documentation for the method here**
 
 ## Transfer - read
 |name |type |description
@@ -15,7 +14,6 @@ Interface of the ERC20 standard as defined in the EIP. Does not include the opti
 |from|address|
 |to|address|
 |value|uint256|
-**Add Documentation for the method here**
 
 ## allowance - view
 |name |type |description
@@ -38,7 +36,7 @@ Sets `amount` as the allowance of `spender` over the caller's tokens.     * Retu
 Returns the amount of tokens owned by `account`.
 
 ## totalSupply - view
-_No parameters_
+_No parameters_  
 Returns the amount of tokens in existence.
 
 ## transfer - read
