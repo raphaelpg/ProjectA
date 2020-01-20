@@ -1,42 +1,34 @@
-# SwapAly
-_Use this contract to swap ERC-20 tokens_
+# SwapAly 
+## Cryptogama swap contract
+Use this contract to swap ERC-20 tokens
+The owner of this contract need to get the approval from both token owners to be able to proceed the swap
+
 > Created By Raphael Pinto Gregorio
 
-The owner of this contract need to get the approval from both token owners to be able to proceed the swap
-## Cryptogama swap contract
+## constructor
+The deployer of this contract becomes automatically the owner
 
-## constructor - read
-_No parameters_
-function Object() {
-    [native code]
-}
-
-## TokenExchanged - read
+## Event TokenExchanged
 |name |type |description
 |-----|-----|-----------
-|from|address|
-|to|address|
-|amountSold|uint256|
-|amountBought|uint256|
-**Add Documentation for the method here**
+|from|address|the seller address
+|to|address|the buyer address
+|amountSold|uint256|the amount sold
+|amountBought|uint256|the amount bought
+Event containing the seller address, the buyer address, the amount sold and the amount bought
 
 ## getOwner - view
-_No parameters_
-> Created By Raphael Pinto Gregorio
-
-basic function
+No parameters
 Return : contract owner address
 
 ## swapToken - read
 |name |type |description
 |-----|-----|-----------
-|sellerAddress|address|the address of the seller, sellerTokenAddress the address of the seller ERC-20, amountSeller the amount the seller wants to exchange, buyerAddress the buyer address, buyerTokenAddress the adress of the buyer ERC-20, amountBuyer the amount to be exchanged
-|sellerTokenAddress|address|
-|amountSeller|uint256|
-|buyerAddress|address|
-|buyerTokenAddress|address|
-|amountBuyer|uint256|
-> Created By Raphael Pinto Gregorio
-
-swap tokens, owner of swap contract need the approval of both token owners, emit an event called TokenExchanged
-Return : an event TokenExchanged containing the seller address, the buyer address, the amount sold and the amount bought in this order
+|sellerAddress|address|the address of the seller
+|sellerTokenAddress|address|the address of the seller ERC-20
+|amountSeller|uint256|the amount the seller wants to exchange
+|buyerAddress|address|the buyer address
+|buyerTokenAddress|address|the adress of the buyer ERC-20
+|amountBuyer|uint256|the amount to be exchanged
+Owner of swap contract need the approval of both token owners
+Return : TokenExchanged event
