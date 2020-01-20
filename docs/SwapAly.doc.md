@@ -20,7 +20,7 @@ Event containing the seller address, the buyer address, the amount sold and the 
 
 ## getOwner - view
 No parameters  
-Return : contract owner address
+Returns : contract owner address
 
 ## swapToken - read
 |name |type |description
@@ -32,5 +32,5 @@ Return : contract owner address
 |buyerTokenAddress|address|the adress of the buyer ERC-20
 |amountBuyer|uint256|the amount to be exchanged
 
-Owner of swap contract need the approval of both token owners
-Return : TokenExchanged event
+Owner of swap contract need the approval of both token owners  
+Returns : TokenExchanged event
