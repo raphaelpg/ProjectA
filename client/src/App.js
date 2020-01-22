@@ -32,8 +32,6 @@ import UserOrders from './components/UserOrders';
 
 //IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
-// import metaLogoALY from "./logoALY.jpg";
-// import metaLogoDAI from "./logoDAI.jpg";
 
 
 
@@ -70,6 +68,7 @@ class App extends Component {
       sellInputTotal: '',
       ALYBalance: 0,
       DAIBalance: 0,
+      eventLogs: [],
     }
   }
 
@@ -145,20 +144,27 @@ class App extends Component {
     this.displayTradeHistory();
     this.getUserBalance();
 
-    //LISTEN TO CONTRACTS EVENTS
+    //LISTEN TO CONTRACTS EVENTS:
+
+    //ALY ERC-20 APPROVE EVENT
     this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
-      console.log("event ALY contract: ", event);
+      this.state.eventLogs.push(event)
     })
 
+    //DAI ERC-20 APPROVE EVENT
     this.state.tokenDaiContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
-      console.log("event DAI contract: ", event);
+      this.state.eventLogs.push(event)
     })
 
+    //SWAP CONTRACT EVENT, TRIGGER UPDATE USER BALANCE, UPDATE ORDERBOOK, UPDATE TRADE HISTORY
     this.state.swapAlyContract.events.TokenExchanged({ fromBlock: 0, toBlock: 'latest'},
     async (error, event) => {
-      console.log("event Swap Contract: ", event);
+      this.state.eventLogs.push(event)
+      this.getUserBalance()
+      this.displayOrderBook()
+      this.displayTradeHistory()
     })
   }
 
@@ -321,14 +327,14 @@ class App extends Component {
     }
 
     //INSERT TRANSACTIONS INTO TRADE GRAPH
-    if (tradeHistoryEntire['tradeHistory']['trades'].length > 0){
-      for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
-        tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch,tradeHistoryEntire['tradeHistory']['trades'][i].price ]);
-      }
-    }
+    // if (tradeHistoryEntire['tradeHistory']['trades'].length > 0){
+    //   for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
+    //     tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch,tradeHistoryEntire['tradeHistory']['trades'][i].price ]);
+    //   }
+    // }
 
 
-    console.log('1 Graph: ', tradeGraph)
+    // console.log('Update Graph Array: ', tradeGraph)
     this.setState({ tradeGraph: tradeGraph });
 
   }
@@ -419,28 +425,10 @@ class App extends Component {
     //RETRIEVE USER ALY AND DAI BALANCES
     let TempALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
     let TempDAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
-    console.log("ALYBalance: ",TempALYBalance/100)
-    console.log("DAIBalance: ",TempDAIBalance/100)
     this.setState({
       ALYBalance: (TempALYBalance/100).toFixed(2),
       DAIBalance: (TempDAIBalance/100).toFixed(2)
     })
-  }
-
-  updateUserBalance = async () => {
-    const { accounts, tokenAlyContract, tokenDaiContract } = this.state;
-
-    //RETRIEVE USER ALY AND DAI BALANCES
-    setTimeout( async () => {
-      let TempALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
-      let TempDAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
-      console.log("ALYBalance: ",TempALYBalance/100)
-      console.log("DAIBalance: ",TempDAIBalance/100)
-      this.setState({
-        ALYBalance: (TempALYBalance/100).toFixed(2),
-        DAIBalance: (TempDAIBalance/100).toFixed(2)
-      })
-    }, 10000)
   }
 
   //AUTOCOMPLETE BUY TOKEN FORM
@@ -541,12 +529,7 @@ class App extends Component {
                     event.preventDefault()
                     const buyVolume = this.volumeBuy.value
                     const buyPrice = this.priceBuy.value
-                    await this.buyOrder(buyVolume, buyPrice)
-                    setTimeout( () => {
-                      this.displayOrderBook()
-                      this.displayTradeHistory()
-                      this.updateUserBalance()
-                    }, 1000);
+                    this.buyOrder(buyVolume, buyPrice)
                   }}>
                   <div className="fields">
                     <div className="buyFields">
@@ -599,12 +582,7 @@ class App extends Component {
                     event.preventDefault()
                     const sellVolume = this.volumeSell.value
                     const sellPrice = this.priceSell.value
-                    await this.sellOrder(sellVolume, sellPrice)
-                    setTimeout( () => {
-                      this.displayOrderBook()
-                      this.displayTradeHistory()
-                      this.updateUserBalance()
-                    }, 1000);
+                    this.sellOrder(sellVolume, sellPrice)
                   } }>
                   <div className="fields">
                     <div className="buyFields">
