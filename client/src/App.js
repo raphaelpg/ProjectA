@@ -1,11 +1,11 @@
-//CRYPTOGAMA REACT CLIENT:
+//CRYPTOGAMA REACT CLIENT: 
 
 //1.IMPORTS
 //2.DAPP SET UP
 //3.FUNCTIONS TO RETRIEVE DATA FROM THE SERVER
 //4.FUNCTIONS TO SEND DATA TO THE SERVER
 //5.FUNCTIONS FOR HTML RENDERING
-//6.RENDERING HTML
+//6.RENDERING HTML  
 
 
 
@@ -15,11 +15,11 @@
 //IMPORT
 import React, { Component } from "react";
 import getWeb3 from "./getWeb3";
-import Highcharts from "highcharts/highstock";
 
 //IMPORT ERC20 TOKEN CONTRACTS
 import TokenERC20AlyContract from "./contracts/TokenERC20Aly.json";
 import TokenERC20DaiContract from "./contracts/TokenERC20Dai.json";
+import SwapAlyContract from "./contracts/SwapAly.json";
 
 //IMPORT COMPONENTS
 import Header from './components/Header';
@@ -32,8 +32,8 @@ import UserOrders from './components/UserOrders';
 
 //IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
-import metaLogoALY from "./logoALY.jpg";
-import metaLogoDAI from "./logoDAI.jpg";
+// import metaLogoALY from "./logoALY.jpg";
+// import metaLogoDAI from "./logoDAI.jpg";
 
 
 
@@ -54,13 +54,11 @@ class App extends Component {
       tokenAlyContractAddress: null,
       tokenDaiContract: null,
       tokenDaiContractAddress: null,
-      tokenAddresses: null,
       _orderBookBids: [],
       _orderBookAsks: [],
       tradeHistory: [],
+      tradeGraph: [],
       serverStatus: '',
-      post: '',
-      responseToPost: '',
       pushedOrder: '',
       bestSellerPrice: 0,
       bestBuyerPrice: 0,
@@ -70,14 +68,19 @@ class App extends Component {
       sellInputPrice: 0,
       sellInputVolume: 0,
       sellInputTotal: '',
-      // userALYBalance: 0,
-      // userDAIBalance: 0,
+      ALYBalance: 0,
+      DAIBalance: 0,
     }
   }
 
   //DAPP CONFIGURATION
   componentDidMount = async () => {
     try {
+      //SET SWAP CONTRACT ADDRESS TO STATE
+      this.getSwapContractAddress()
+      .then(res => this.setState({ swapAlyContractAddress: res.express }))
+      .catch(err => console.log(err));
+
       //GET NETWORK PROVIDER AND WEB3 INSTANCE
       const web3 = await getWeb3();
 
@@ -99,38 +102,10 @@ class App extends Component {
         deployedNetwork3 && deployedNetwork3.address,
       );
 
-      //MAPPING TOKENS INTO METAMASK
-      let tokenAddresses = new Map();
-
-      web3.currentProvider.sendAsync({
-        method: 'metamask_watchAsset',
-        params: {
-          "type":"ERC20",
-          "options":{
-            "address":deployedNetwork2.address,
-            "symbol":"ALY",
-            "decimals":0,
-            "image":metaLogoALY
-          },
-        },
-        id: 20,
-      }, console.log)
-      tokenAddresses.set("ALY", deployedNetwork2.address);
-
-      web3.currentProvider.sendAsync({
-        method: 'metamask_watchAsset',
-        params: {
-          "type":"ERC20",
-          "options":{
-            "address":deployedNetwork3.address,
-            "symbol":"DAI",
-            "decimals":0,
-            "image":metaLogoDAI
-          },
-        },
-        id: 30,
-      }, console.log)
-      tokenAddresses.set("DAI", deployedNetwork3.address);
+      const instanceSwapAly = new web3.eth.Contract(
+        SwapAlyContract.abi,
+        this.state.swapAlyContractAddress,
+      );
 
       //SET PARAMETERS TO THE STATE
       this.setState({ 
@@ -138,9 +113,10 @@ class App extends Component {
         accounts, 
         tokenAlyContract: instanceTokenAly,
         tokenDaiContract: instanceTokenDai,
+        swapAlyContract: instanceSwapAly,
         tokenAlyContractAddress: deployedNetwork2.address,
         tokenDaiContractAddress: deployedNetwork3.address,
-        tokenAddresses: tokenAddresses
+
       })
     } catch (error) {
       //CATCH ERRORS
@@ -164,17 +140,12 @@ class App extends Component {
       .then(res => this.setState({ swapAlyOwner: res.express }))
       .catch(err => console.log(err));
 
-    //SET SWAP CONTRACT ADDRESS TO STATE
-    this.getSwapContractAddress()
-      .then(res => this.setState({ swapAlyContractAddress: res.express }))
-      .catch(err => console.log(err));
-
     //DISPLAY DATA
     this.displayOrderBook();
     this.displayTradeHistory();
-    //this.getUserBalance();
+    this.getUserBalance();
 
-    //LISTEN TO TOKEN CONTRACTS EVENTS
+    //LISTEN TO CONTRACTS EVENTS
     this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
       console.log("event ALY contract: ", event);
@@ -183,6 +154,11 @@ class App extends Component {
     this.state.tokenDaiContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
       console.log("event DAI contract: ", event);
+    })
+
+    this.state.swapAlyContract.events.TokenExchanged({ fromBlock: 0, toBlock: 'latest'},
+    async (error, event) => {
+      console.log("event Swap Contract: ", event);
     })
   }
 
@@ -301,28 +277,18 @@ class App extends Component {
   }
 
 
-  //GET TRADE HISTORY DATA
+  //GET TRADE HISTORY AND GRAPH
   displayTradeHistory = async () => {
-    let { tradeHistory } = this.state;
+    let { tradeHistory, tradeGraph } = this.state;
 
-    ////FETCH AND SAVE TRADE HISTORY
+    ////FETCH AND SAVE TRADES
     const tradeHistoryResponse = await fetch('/api/tradeHistory');
     const tradeHistoryEntire = await tradeHistoryResponse.json();
     if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
 
+    //TRADE HISTORY
     //SAVE TRADE HISTORY IN ARRAY
     tradeHistory = tradeHistoryEntire['tradeHistory']['trades'];
-
-    //SORT ARRAY
-    function sortDecreaseTime(a, b){
-      if (a.timestamp === b.timestamp) {
-          return 0;
-      } else {
-          return (a.timestamp > b.timestamp) ? -1 : 1;
-      }
-    }
-
-    tradeHistory.sort(sortDecreaseTime);
 
     //REMOVE OLD TRADES FROM THE DOM
     let tradeHistoryBody = document.getElementById('tradeHistoryBody');
@@ -353,6 +319,18 @@ class App extends Component {
         }
       }
     }
+
+    //INSERT TRANSACTIONS INTO TRADE GRAPH
+    if (tradeHistoryEntire['tradeHistory']['trades'].length > 0){
+      for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
+        tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch,tradeHistoryEntire['tradeHistory']['trades'][i].price ]);
+      }
+    }
+
+
+    console.log('1 Graph: ', tradeGraph)
+    this.setState({ tradeGraph: tradeGraph });
+
   }
 
   
@@ -434,8 +412,43 @@ class App extends Component {
 
   //5.FUNCTIONS FOR HTML RENDERING
   
+  //GET USER'S TOKEN BALANCES
+  getUserBalance = async () => {
+    const { accounts, tokenAlyContract, tokenDaiContract } = this.state;
+
+    //RETRIEVE USER ALY AND DAI BALANCES
+    let TempALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
+    let TempDAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
+    console.log("ALYBalance: ",TempALYBalance/100)
+    console.log("DAIBalance: ",TempDAIBalance/100)
+    this.setState({
+      ALYBalance: (TempALYBalance/100).toFixed(2),
+      DAIBalance: (TempDAIBalance/100).toFixed(2)
+    })
+  }
+
+  updateUserBalance = async () => {
+    const { accounts, tokenAlyContract, tokenDaiContract } = this.state;
+
+    //RETRIEVE USER ALY AND DAI BALANCES
+    setTimeout( async () => {
+      let TempALYBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
+      let TempDAIBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
+      console.log("ALYBalance: ",TempALYBalance/100)
+      console.log("DAIBalance: ",TempDAIBalance/100)
+      this.setState({
+        ALYBalance: (TempALYBalance/100).toFixed(2),
+        DAIBalance: (TempDAIBalance/100).toFixed(2)
+      })
+    }, 10000)
+  }
 
   //AUTOCOMPLETE BUY TOKEN FORM
+  fixRounding = (value, precision) => {
+      var power = Math.pow(10, precision || 0);
+      return Math.round(value * power) / power;
+  }
+
   handleBuyPrice = async (e) => {
     if (e.target.value === '') {
       this.setState({ buyInputTotal: '' });      
@@ -451,7 +464,7 @@ class App extends Component {
   updateBuyTotal = async () => {
     let buyTotal = this.state.buyInputPrice * this.state.buyInputVolume;
     if (buyTotal > 0){
-      this.setState({ buyInputTotal: buyTotal });
+      this.setState({ buyInputTotal: this.fixRounding(buyTotal) });
     }
   }
 
@@ -471,7 +484,7 @@ class App extends Component {
   updateSellTotal = async () => {
     let sellTotal = this.state.sellInputPrice * this.state.sellInputVolume;
     if (sellTotal > 0){
-      this.setState({ sellInputTotal: sellTotal });
+      this.setState({ sellInputTotal: this.fixRounding(sellTotal) });
     }
   }
 
@@ -497,9 +510,8 @@ class App extends Component {
           <TokenSelector />
 
           <UserBalance 
-            accounts={ this.state.accounts }
-            tokenAlyContract={ this.state.tokenAlyContract }
-            tokenDaiContract={ this.state.tokenDaiContract }
+            ALYBalance = { this.state.ALYBalance }
+            DAIBalance = { this.state.DAIBalance }
           />
         </div>
 
@@ -517,7 +529,7 @@ class App extends Component {
           <div className="MainCenter">
 
             {/*TOKEN PRICE GRAPH (EMPTY FOR THE MOMENT)*/}
-            <Graph />
+            <Graph tradeGraph={ this.state.tradeGraph } />
 
             {/*BUY AND SELL FORMS*/}
             <div className="buySellToken">
@@ -533,6 +545,7 @@ class App extends Component {
                     setTimeout( () => {
                       this.displayOrderBook()
                       this.displayTradeHistory()
+                      this.updateUserBalance()
                     }, 1000);
                   }}>
                   <div className="fields">
@@ -590,6 +603,7 @@ class App extends Component {
                     setTimeout( () => {
                       this.displayOrderBook()
                       this.displayTradeHistory()
+                      this.updateUserBalance()
                     }, 1000);
                   } }>
                   <div className="fields">
