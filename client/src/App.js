@@ -68,8 +68,8 @@ class App extends Component {
       sellInputTotal: '',
       ALYBalance: 0,
       DAIBalance: 0,
-      eventLogs: [],
     }
+    this.getTradeGraphData();
   }
 
   //DAPP CONFIGURATION
@@ -149,22 +149,22 @@ class App extends Component {
     //ALY ERC-20 APPROVE EVENT
     this.state.tokenAlyContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
-      this.state.eventLogs.push(event)
+      this.displayOrderBook()
     })
 
     //DAI ERC-20 APPROVE EVENT
     this.state.tokenDaiContract.events.Approval({ fromBlock: 0, toBlock: 'latest' },
     async (error, event) => {
-      this.state.eventLogs.push(event)
+      this.displayOrderBook()
     })
 
     //SWAP CONTRACT EVENT, TRIGGER UPDATE USER BALANCE, UPDATE ORDERBOOK, UPDATE TRADE HISTORY
     this.state.swapAlyContract.events.TokenExchanged({ fromBlock: 0, toBlock: 'latest'},
     async (error, event) => {
-      this.state.eventLogs.push(event)
       this.getUserBalance()
       this.displayOrderBook()
       this.displayTradeHistory()
+      this.getTradeGraphData()
     })
   }
 
@@ -283,11 +283,11 @@ class App extends Component {
   }
 
 
-  //GET TRADE HISTORY AND GRAPH
+  //GET TRADE HISTORY
   displayTradeHistory = async () => {
-    let { tradeHistory, tradeGraph } = this.state;
+    let { tradeHistory } = this.state;
 
-    ////FETCH AND SAVE TRADES
+    //FETCH AND SAVE TRADES
     const tradeHistoryResponse = await fetch('/api/tradeHistory');
     const tradeHistoryEntire = await tradeHistoryResponse.json();
     if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
@@ -325,18 +325,29 @@ class App extends Component {
         }
       }
     }
+  }
 
-    //INSERT TRANSACTIONS INTO TRADE GRAPH
-    // if (tradeHistoryEntire['tradeHistory']['trades'].length > 0){
-    //   for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
-    //     tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch,tradeHistoryEntire['tradeHistory']['trades'][i].price ]);
-    //   }
-    // }
+  //GET TRADE GRAPH DATA
+  getTradeGraphData = async () => {
+    let { tradeGraph } = this.state;
 
+    //EMPTY ARRAY
+    while (tradeGraph[0]) {
+      tradeGraph.slice(0, 1)
+    }
+    console.log("Slice: ", tradeGraph)
 
-    // console.log('Update Graph Array: ', tradeGraph)
-    this.setState({ tradeGraph: tradeGraph });
+    //FETCH AND SAVE TRADES
+    const tradeHistoryResponse = await fetch('/api/tradeHistory');
+    const tradeHistoryEntire = await tradeHistoryResponse.json();
+    if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
 
+    //POPULATE TRADEGRAPH ARRAY
+    for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
+      tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch, tradeHistoryEntire['tradeHistory']['trades'][i].price ])
+    }
+    console.log("App: ",tradeGraph)
+    this.state.tradeGraph = tradeGraph;
   }
 
   
