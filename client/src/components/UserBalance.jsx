@@ -3,9 +3,6 @@ import logoALY from "./ALY2020.png";
 import logoDAI from "./DAI2020.png";
 
 class UserBalance extends Component {
-	constructor(props) {
-		super(props);
-	}
 
 	render() {
 		return (

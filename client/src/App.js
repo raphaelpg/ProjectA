@@ -28,7 +28,6 @@ import UserBalance from './components/UserBalance';
 import TradeHistory from './components/TradeHistory';
 import Graph from './components/Graph';
 import Orderbook from './components/Orderbook';
-import UserOrders from './components/UserOrders';
 
 //IMPORT CSS AND TOKENS LOGOS
 import "./App.css";
@@ -69,7 +68,6 @@ class App extends Component {
       ALYBalance: 0,
       DAIBalance: 0,
     }
-    this.getTradeGraphData();
   }
 
   //DAPP CONFIGURATION
@@ -143,6 +141,7 @@ class App extends Component {
     this.displayOrderBook();
     this.displayTradeHistory();
     this.getUserBalance();
+    this.getTradeGraphData();
 
     //LISTEN TO CONTRACTS EVENTS:
 
@@ -164,7 +163,7 @@ class App extends Component {
       this.getUserBalance()
       this.displayOrderBook()
       this.displayTradeHistory()
-      this.getTradeGraphData()
+      this.updateTradeGraphData()
     })
   }
 
@@ -329,13 +328,7 @@ class App extends Component {
 
   //GET TRADE GRAPH DATA
   getTradeGraphData = async () => {
-    let { tradeGraph } = this.state;
-
-    //EMPTY ARRAY
-    while (tradeGraph[0]) {
-      tradeGraph.slice(0, 1)
-    }
-    console.log("Slice: ", tradeGraph)
+    let tradeGraph = []
 
     //FETCH AND SAVE TRADES
     const tradeHistoryResponse = await fetch('/api/tradeHistory');
@@ -346,10 +339,23 @@ class App extends Component {
     for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
       tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch, tradeHistoryEntire['tradeHistory']['trades'][i].price ])
     }
-    console.log("App: ",tradeGraph)
     this.state.tradeGraph = tradeGraph;
   }
 
+  updateTradeGraphData = async () => {
+    let tradeGraph = []
+
+    //FETCH AND SAVE TRADES
+    const tradeHistoryResponse = await fetch('/api/tradeHistory');
+    const tradeHistoryEntire = await tradeHistoryResponse.json();
+    if (tradeHistoryResponse.status !== 200) throw Error(tradeHistoryEntire.message);
+
+    //POPULATE TRADEGRAPH ARRAY
+    for (let i=0; i<tradeHistoryEntire['tradeHistory']['trades'].length; i++){
+      tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch, tradeHistoryEntire['tradeHistory']['trades'][i].price ])
+    }
+    this.setState({ tradeGraph: tradeGraph });
+  }
   
 
 
@@ -528,7 +534,7 @@ class App extends Component {
           <div className="MainCenter">
 
             {/*TOKEN PRICE GRAPH (EMPTY FOR THE MOMENT)*/}
-            <Graph tradeGraph={ this.state.tradeGraph } />
+            <Graph tradeGraph = { this.state.tradeGraph } />
 
             {/*BUY AND SELL FORMS*/}
             <div className="buySellToken">
@@ -640,7 +646,6 @@ class App extends Component {
               </div>
             </div>
             
-            <UserOrders />
           </div>
 
 

@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import Highcharts from "highcharts/highstock";
 
 class Graph extends Component {
-	constructor(props) {
-		super(props);
-	}
 
 	componentDidMount = async () => {
 		//SET CHART CSS
@@ -80,20 +77,20 @@ class Graph extends Component {
      	}]
 		})
 
-
 		//SET CHART
-		Highcharts.stockChart('graphContainer', {
-      rangeSelector: {
-        selected: 1
-      },
-      series: [{
-        name: 'ALY to DAI',
-        data: this.props.tradeGraph,
-        pointStart: Date.UTC(2020, 0, 1),
-        pointInterval: 60 * 1000 // one minute
-     	}]
-    });
-
+    setTimeout( () => {
+  		Highcharts.stockChart('graphContainer', {
+        rangeSelector: {
+          selected: 1
+        },
+        series: [{
+          name: 'ALY to DAI',
+          data: this.props.tradeGraph,
+          pointStart: Date.UTC(2020, 0, 1)
+          //pointInterval: 60 * 1000 // one minute
+       	}]
+      })
+    },1000)
 	}
 
 	render() {
