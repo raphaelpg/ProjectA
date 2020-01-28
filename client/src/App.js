@@ -68,6 +68,7 @@ class App extends Component {
       ALYBalance: 0,
       DAIBalance: 0,
     }
+    this.getTradeGraphData();
   }
 
   //DAPP CONFIGURATION
@@ -141,7 +142,7 @@ class App extends Component {
     this.displayOrderBook();
     this.displayTradeHistory();
     this.getUserBalance();
-    this.getTradeGraphData();
+
 
     //LISTEN TO CONTRACTS EVENTS:
 
@@ -163,7 +164,7 @@ class App extends Component {
       this.getUserBalance()
       this.displayOrderBook()
       this.displayTradeHistory()
-      this.updateTradeGraphData()
+      this.updateTradeGraphData() 
     })
   }
 
@@ -355,6 +356,7 @@ class App extends Component {
       tradeGraph.unshift([ tradeHistoryEntire['tradeHistory']['trades'][i].epoch, tradeHistoryEntire['tradeHistory']['trades'][i].price ])
     }
     this.setState({ tradeGraph: tradeGraph });
+    window.graphComponent.updateGraph();
   }
   
 
