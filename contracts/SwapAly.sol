@@ -10,6 +10,7 @@ import "./TokenERC20Dai.sol";
 /// @dev The owner of this contract need to get the approval from both token owners to be able to proceed the swap
 contract SwapAly{
     address private _owner;
+    uint256 private _sellerAllowance;
 
     event TokenExchanged(address indexed from, address indexed to, uint256 amountSold, uint256 amountBought);
 
@@ -36,7 +37,7 @@ contract SwapAly{
 
         TokenSell.transferFrom(sellerAddress, buyerAddress, amountSeller);
         TokenBuy.transferFrom(buyerAddress, sellerAddress, amountBuyer);
-        
+
         emit TokenExchanged(sellerAddress, buyerAddress, amountSeller, amountBuyer);
     }
 }

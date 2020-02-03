@@ -28,6 +28,48 @@ code {
     color: $orangeGama;
 }
 
+table {
+  margin: auto;
+  font-weight: normal;
+  width: -webkit-fill-available;
+  background-color: $darkBackground;
+  table-layout: auto;
+}
+
+table tr{
+  display: flex;
+  justify-content: space-between;
+  margin: 0px 25px 0px 25px;
+}
+
+table, th, td {
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: right;
+}
+
+table th{
+  font-weight: normal;
+}
+
+tbody{
+  display: table-cell;
+  overflow-y: auto;
+}
+
+tr{
+  transition: all 0.2s;
+}
+
+tr:hover{
+  background-color: $orangeGama;
+  color: $darkBackground;
+}
+
+
+/*HEADER*/
 .Header {
   display: inline-flex;
   justify-content: space-between;
@@ -56,6 +98,8 @@ code {
   color: $fontColor;
 }
 
+
+/*NAVBAR*/
 .navbar{
   display: flex;
   justify-content: space-between;
@@ -112,17 +156,21 @@ code {
   margin-left: 3px;
 }
 
+
+/*MAIN*/
 .Main {
   display: flex;
   justify-content: center;
 }
 
+/*MAIN LEFT*/
 .MainLeft{
   width: 300px;
   border: 1px solid $secondGrey; 
 }
 
 
+/*TRADE HISTORY*/
 .tradeHistoryTitle{
   font-size: 12px;
   text-align: left;
@@ -135,38 +183,18 @@ code {
   height: 510px;
 }
 
-#tradeHistoryTable{
-  height: inherit;
-}
-
-#tradeHistoryTable tbody{
-  display: table-cell;
+table #tradeHistoryBody{
+  height: 530px;
   vertical-align: top;
 }
 
-table tr{
-  display: flex;
-  justify-content: space-around;
+#tradeHistoryBody tr{
 }
 
-#tradeHistoryTable tr{
-  transition: all 0.2s;
+#tradeHistoryBody th{
 }
 
-#tradeHistoryTable tr:hover{
-  background-color: $orangeGama;
-  color: $darkBackground;
-}
-
-#tradeHistoryTable th{
-  vertical-align: baseline;
-  /*width: 89px;*/
-}
-
-.tradeTimestamp{
-  width: auto !important;
-}
-
+/*MAIN CENTER*/
 .MainCenter{
   width: 40%;
   border: 1px solid $secondGrey;
@@ -271,6 +299,8 @@ input:-internal-autofill-selected {
   height: 60px;
 }
 
+
+/*MAIN RIGHT*/
 .MainRight{
   width: 300px;
   border: 1px solid $secondGrey;
@@ -288,50 +318,14 @@ input:-internal-autofill-selected {
   margin-bottom: 4px;
 }
 
-table, th, td {
-  border-collapse: collapse;
-}
-
-table {
-  margin: auto;
-  font-weight: normal;
-  width: -webkit-fill-available;
-  background-color: $darkBackground;
-  table-layout: auto;
-}
-
 table #orderBookAsksBody{
   height: 245px;
-  display: table-cell;
   vertical-align: bottom;
-}
-
-#orderBookAsksBody tr{
-  transition: all 0.2s;
-}
-
-#orderBookAsksBody tr:hover{
-  background-color: $orangeGama;
-  color: $darkBackground;
 }
 
 table #orderBookBidsBody{
   height: 245px;
-  display: table-cell;
   vertical-align: top;
-}
-
-#orderBookBidsBody tr{
-  transition: all 0.2s;
-}
-
-#orderBookBidsBody tr:hover{
-  background-color: $orangeGama;
-  color: $darkBackground;
-}
-
-table th{
-  font-weight: normal;
 }
 
 .newOrderPriceAsk{

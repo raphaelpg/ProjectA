@@ -5,6 +5,7 @@ class Orderbook extends Component {
 	render() {
 		return (
 			<div className="sectionOrderBook">
+        {/*COLUMN TITLES*/}
         <div className="orderBookTitles">
           <div>Price (DAI)</div>
           <div>Volume (ALY)</div>
