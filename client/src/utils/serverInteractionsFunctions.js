@@ -56,15 +56,15 @@ export async function displayOrderBook() {
         let newOrder = document.createElement('tr');
         newOrder.className += "newOrder";
 
-        let newOrderType = document.createElement('th');
-        newOrderType.textContent = _orderBookBids[i].type;
         let newOrderPrice = document.createElement('th');
         newOrderPrice.textContent = _orderBookBids[i].price.toFixed(2);
         newOrderPrice.className += "newOrderPriceBid";
         let newOrderVolume = document.createElement('th');
         newOrderVolume.textContent = _orderBookBids[i].volume.toFixed(2);
+        newOrderVolume.className += "newOrderVolume";
         let newOrderTotal = document.createElement('th');
         newOrderTotal.textContent = _orderBookBids[i].total.toFixed(2);
+        newOrderTotal.className += "newOrderTotal";
 
         newOrder.appendChild(newOrderPrice);
         newOrder.appendChild(newOrderVolume);
@@ -80,15 +80,15 @@ export async function displayOrderBook() {
         let newOrder = document.createElement('tr');
         newOrder.className += "newOrder";
 
-        let newOrderType = document.createElement('th');
-        newOrderType.textContent = _orderBookAsks[i].type;
         let newOrderPrice = document.createElement('th');
         newOrderPrice.textContent = _orderBookAsks[i].price.toFixed(2);
         newOrderPrice.className += "newOrderPriceAsk";
         let newOrderVolume = document.createElement('th');
         newOrderVolume.textContent = _orderBookAsks[i].volume.toFixed(2);
+        newOrderVolume.className += "newOrderVolume";
         let newOrderTotal = document.createElement('th');
         newOrderTotal.textContent = _orderBookAsks[i].total.toFixed(2);
+        newOrderTotal.className += "newOrderTotal";
 
         newOrder.appendChild(newOrderPrice);
         newOrder.appendChild(newOrderVolume);
@@ -133,15 +133,16 @@ export async function displayTradeHistory() {
     for (let i=0; i<tradeHistory.length; i++){
       if (tradeHistory[i]){
         let newTrade = document.createElement('tr');
-        newTrade.className += "newOrder";
+        newTrade.className += "newTrade";
 
         let newTradePrice = document.createElement('th');
         newTradePrice.textContent = tradeHistory[i].price.toFixed(2);
-        //newTradePrice.className += "newTradePriceBid";
+        newTradePrice.className += "newTradePrice";
         let newTradeVolume = document.createElement('th');
         newTradeVolume.textContent = tradeHistory[i].volume.toFixed(2);
+        newTradeVolume.className += "newTradeVolume";
         let newTradeTime = document.createElement('th');
-        //newTradeTime.className += "tradeTimestamp";
+        newTradeTime.className += "newTradeTimestamp";
         newTradeTime.textContent = tradeHistory[i].timestamp;
 
         newTrade.appendChild(newTradePrice);

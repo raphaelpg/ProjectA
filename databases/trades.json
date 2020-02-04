@@ -1,146 +1,212 @@
 {
   "trades": [
     {
-      "price": 100,
+      "price": 182.75,
+      "volume": 1.26,
+      "timestamp": "04/02/2020 18:45:26",
+      "epoch": 1580838326147
+    },
+    {
+      "price": 183.25,
+      "volume": 7,
+      "timestamp": "04/02/2020 13:11:28",
+      "epoch": 1580818288770
+    },
+    {
+      "price": 183.35,
       "volume": 1,
+      "timestamp": "04/02/2020 03:22:47",
+      "epoch": 1580782967653
+    },
+    {
+      "price": 180.39,
+      "volume": 10.15,
+      "timestamp": "03/02/2020 19:05:47",
+      "epoch": 1580753147117
+    },
+    {
+      "price": 150.48,
+      "volume": 14.89,
+      "timestamp": "03/02/2020 19:03:11",
+      "epoch": 1580752991607
+    },
+    {
+      "price": 165.36,
+      "volume": 51.22,
+      "timestamp": "03/02/2020 18:29:39",
+      "epoch": 1580750979143
+    },
+    {
+      "price": 165.58,
+      "volume": 25.42,
+      "timestamp": "03/02/2020 17:19:01",
+      "epoch": 1580746741034
+    },
+    {
+      "price": 150.84,
+      "volume": 10.56,
+      "timestamp": "03/02/2020 16:48:36",
+      "epoch": 1580744916981
+    },
+    {
+      "price": 175.36,
+      "volume": 10.78,
+      "timestamp": "03/02/2020 16:37:26",
+      "epoch": 1580744246915
+    },
+    {
+      "price": 135.44,
+      "volume": 18.86,
+      "timestamp": "31/01/2020 14:02:44",
+      "epoch": 1580475764876
+    },
+    {
+      "price": 115.99,
+      "volume": 17.12,
+      "timestamp": "31/01/2020 13:48:11",
+      "epoch": 1580474891391
+    },
+    {
+      "price": 100.13,
+      "volume": 11.13,
       "timestamp": "28/01/2020 17:12:28",
       "epoch": 1580227948651
     },
     {
-      "price": 100,
-      "volume": 1,
+      "price": 100.66,
+      "volume": 18.47,
       "timestamp": "28/01/2020 17:11:34",
       "epoch": 1580227894599
     },
     {
-      "price": 30,
-      "volume": 1,
+      "price": 130.54,
+      "volume": 14.65,
       "timestamp": "28/01/2020 16:45:52",
       "epoch": 1580226352346
     },
     {
-      "price": 80,
-      "volume": 2,
+      "price": 180.36,
+      "volume": 26.87,
       "timestamp": "28/01/2020 16:40:22",
       "epoch": 1580226022225
     },
     {
-      "price": 50,
-      "volume": 1,
+      "price": 150.64,
+      "volume": 13.47,
       "timestamp": "28/01/2020 16:20:17",
       "epoch": 1580224817987
     },
     {
-      "price": 350,
-      "volume": 1,
+      "price": 350.15,
+      "volume": 17.22,
       "timestamp": "28/01/2020 16:16:13",
       "epoch": 1580224573780
     },
     {
-      "price": 280,
-      "volume": 1,
+      "price": 280.68,
+      "volume": 18.87,
       "timestamp": "28/01/2020 16:12:31",
       "epoch": 1580224351530
     },
     {
-      "price": 120,
-      "volume": 1,
+      "price": 120.13,
+      "volume": 13.54,
       "timestamp": "27/01/2020 22:21:37",
       "epoch": 1580160097959
     },
     {
-      "price": 100,
-      "volume": 1,
+      "price": 100.65,
+      "volume": 13.45,
       "timestamp": "27/01/2020 22:11:20",
       "epoch": 1580159480055
     },
     {
-      "price": 180,
-      "volume": 1,
+      "price": 180.32,
+      "volume": 14.57,
       "timestamp": "27/01/2020 21:58:49",
       "epoch": 1580158729586
     },
     {
-      "price": 80,
-      "volume": 10,
+      "price": 180.44,
+      "volume": 10.33,
       "timestamp": "27/01/2020 21:43:44",
       "epoch": 1580157824461
     },
     {
-      "price": 100,
-      "volume": 10,
+      "price": 100.99,
+      "volume": 10.99,
       "timestamp": "26/01/2020 15:20:14",
       "epoch": 1580048414307
     },
     {
-      "price": 110,
-      "volume": 10,
+      "price": 110.12,
+      "volume": 10.47,
       "timestamp": "26/01/2020 15:09:39",
       "epoch": 1580047779905
     },
     {
-      "price": 100,
-      "volume": 10,
+      "price": 100.65,
+      "volume": 10.35,
       "timestamp": "26/01/2020 14:59:32",
       "epoch": 1580047172027
     },
     {
-      "price": 10,
-      "volume": 50,
+      "price": 105.36,
+      "volume": 50.21,
       "timestamp": "26/01/2020 14:51:58",
       "epoch": 1580046718051
     },
     {
-      "price": 200,
-      "volume": 10,
+      "price": 200.36,
+      "volume": 10.35,
       "timestamp": "26/01/2020 14:48:38",
       "epoch": 1580046518085
     },
     {
-      "price": 190,
-      "volume": 10,
+      "price": 190.41,
+      "volume": 10.87,
       "timestamp": "26/01/2020 14:43:38",
       "epoch": 1580046218300
     },
     {
-      "price": 160,
-      "volume": 10,
+      "price": 160.99,
+      "volume": 15.65,
       "timestamp": "26/01/2020 14:35:55",
       "epoch": 1580045755913
     },
     {
-      "price": 150,
-      "volume": 10,
+      "price": 250.12,
+      "volume": 12.14,
       "timestamp": "26/01/2020 14:23:30",
       "epoch": 1580045010381
     },
     {
-      "price": 30,
-      "volume": 10,
+      "price": 730.66,
+      "volume": 16.35,
       "timestamp": "25/01/2020 15:36:59",
       "epoch": 1579963019904
     },
     {
-      "price": 80,
-      "volume": 10,
+      "price": 480.13,
+      "volume": 17.29,
       "timestamp": "25/01/2020 15:29:11",
       "epoch": 1579962551816
     },
     {
-      "price": 100,
-      "volume": 10,
+      "price": 600.69,
+      "volume": 10.48,
       "timestamp": "25/01/2020 12:38:01",
       "epoch": 1579952281247
     },
     {
-      "price": 120,
-      "volume": 10,
+      "price": 420.48,
+      "volume": 18.48,
       "timestamp": "25/01/2020 00:56:32",
       "epoch": 1579910192822
     },
     {
-      "price": 105,
-      "volume": 5,
+      "price": 305.25,
+      "volume": 52.47,
       "timestamp": "25/01/2020 00:51:21",
       "epoch": 1579909881280
     }

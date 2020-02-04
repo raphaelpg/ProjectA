@@ -32,21 +32,23 @@ class BuyForm extends Component {
 	updateBuyTotal = async () => {
 	  let buyTotal = this.state.buyInputPrice * this.state.buyInputVolume;
 	  if (buyTotal > 0){
-	    this.setState({ buyInputTotal: fixRounding(buyTotal) });
+	    this.setState({ buyInputTotal: fixRounding(buyTotal, 2).toFixed(2) });
 	  }
 	}
 
-	buyOrder = async(_volume, _price) => {
+	//SEND BUY ORDER TO SERVER
+	buyOrder = async (_volume, _price) => {
 		const { accounts, swapAlyOwner, tokenDaiContract, tokenDaiContractAddress } = this.props;
 
 		//CHECK IF USER HAVE SUFFICIENT BALANCE
 		let buyerBalance = await tokenDaiContract.methods.balanceOf(accounts[0]).call();
 		if ( buyerBalance/100 >= (_volume*_price) ) {
 
-		  //RETRIEVE DATA FROM STATE AND PREPARE ORDER
-		  this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
+		  //PREPARE ORDER
+	    let total = fixRounding(_price * _volume, 2).toFixed(2);
+		  this.state.pushedOrder = {'type': 'bid', 'price': _price, 'volume': _volume, 'total': total, 'buyer': accounts[0], 'tokenContractAddress': tokenDaiContractAddress};
 		  
-		  let volumeToApprove = _volume * _price;
+		  let volumeToApprove = total;
 
 		  //EXECUTE APPROVAL TO THE TOKEN CONTRACT
 		  await tokenDaiContract.methods.approve(swapAlyOwner, volumeToApprove*100).send({from: accounts[0]})

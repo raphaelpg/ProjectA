@@ -32,7 +32,7 @@ class BuyForm extends Component {
 	updateSellTotal = async () => {
 	  let sellTotal = this.state.sellInputPrice * this.state.sellInputVolume;
 	  if (sellTotal > 0){
-	    this.setState({ sellInputTotal: fixRounding(sellTotal) });
+	    this.setState({ sellInputTotal: fixRounding(sellTotal, 2).toFixed(2) });
 	  }
 	}
 
@@ -44,8 +44,9 @@ class BuyForm extends Component {
 	  let sellerBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
 	  if (sellerBalance/100 >= _volume) {
 
-	    //RETRIEVE DATA FROM STATE AND PREPARE ORDER
-	    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': _price * _volume, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
+	    //PREPARE ORDER
+	    let total = fixRounding(_price * _volume, 2).toFixed(2);
+	    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': total, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
 	    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
 	    await tokenAlyContract.methods.approve(swapAlyOwner, _volume*100).send({from: accounts[0]});

@@ -39,7 +39,7 @@ table {
 table tr{
   display: flex;
   justify-content: space-between;
-  margin: 0px 25px 0px 25px;
+  margin: 0px 0px 0px 0px;
 }
 
 table, th, td {
@@ -68,6 +68,23 @@ tr:hover{
   color: $darkBackground;
 }
 
+::-webkit-scrollbar{
+  width: 7px;
+}
+
+::-webkit-scrollbar-track{
+  webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: $darkBackground;
+  border-radius: 7px;
+  transition: all 0.4s;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background-color: $secondGrey;
+}
 
 /*HEADER*/
 .Header {
@@ -161,12 +178,14 @@ tr:hover{
 .Main {
   display: flex;
   justify-content: center;
+  height: 600px;
 }
 
 /*MAIN LEFT*/
 .MainLeft{
   width: 300px;
   border: 1px solid $secondGrey; 
+  height: 100%;
 }
 
 
@@ -179,19 +198,28 @@ tr:hover{
   margin-left: 5px;
 }
 
-.tradeContainer{
-  height: 510px;
+#tradeHistoryTable{
+  height: 578px;
 }
 
-table #tradeHistoryBody{
-  height: 530px;
+#tradeHistoryBody{
+  display: block;
+  height: 100%;
+  overflow-y: auto;
   vertical-align: top;
 }
 
-#tradeHistoryBody tr{
+.newTradePrice{
+  width: 50px;
 }
 
-#tradeHistoryBody th{
+.newTradeVolume{
+  width: 50px;
+}
+
+.newTradeTimestamp{
+  width: 150px;
+  margin-right: 15px;
 }
 
 /*MAIN CENTER*/
@@ -303,33 +331,63 @@ input:-internal-autofill-selected {
 /*MAIN RIGHT*/
 .MainRight{
   width: 300px;
+  height: 100%;
   border: 1px solid $secondGrey;
 }
 
 .sectionOrderBook{
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .orderBookTitles{
   display: inline-flex;
   justify-content: space-around;
-  margin-top: 5px;
+  margin-top: 4px;
   margin-bottom: 4px;
 }
 
-table #orderBookAsksBody{
-  height: 245px;
+#bids{
+  height: 278.5px;
   vertical-align: bottom;
 }
 
-table #orderBookBidsBody{
-  height: 245px;
+#asks{
+  height: 278.5px;
+}
+
+#orderBookAsksBody{
+  vertical-align: bottom;
+  height: 100%;
+  /*display: block;*/
+  overflow-y: auto;
+}
+
+#orderBookBidsBody{
   vertical-align: top;
+  height: 100%;
+  display: block;
+  overflow-y: auto;
 }
 
 .newOrderPriceAsk{
+  width: 75px;
   color: indianred;
+}
+
+.newOrderPriceBid{
+  width: 75px;
+  color: lawngreen;
+}
+
+.newOrderVolume{
+  width: 75px;
+}
+
+.newOrderTotal{
+  width: 100px;
+  margin-right: 25px;
 }
 
 .orderBookPrice{
@@ -340,6 +398,3 @@ table #orderBookBidsBody{
   margin-bottom: 0px;
 }
 
-.newOrderPriceBid{
-  color: lawngreen;
-}

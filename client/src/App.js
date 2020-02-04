@@ -155,12 +155,14 @@ class App extends Component {
     //ALY ERC-20 APPROVE EVENT
     this.state.tokenAlyContract.events.Approval({ fromBlock: 'latest', toBlock: 'latest' },
     async (error, event) => {
+      console.log("Approve ALY: ",event)
       this.displayOrderBook()
     })
 
     //DAI ERC-20 APPROVE EVENT
     this.state.tokenDaiContract.events.Approval({ fromBlock: 'latest', toBlock: 'latest' },
     async (error, event) => {
+      console.log("Approve DAI: ",event)
       this.displayOrderBook()
     })
 

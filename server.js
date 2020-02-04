@@ -41,11 +41,11 @@ const deploySwapContract = async () => {
 	.then(function(newContractInstance){
 	    swapContractAddress = newContractInstance.options.address;
 	    SwapAlyContract.options.address = swapContractAddress;
-			console.log("Server address: ", serverAddress)
-			console.log("Swap contract deployed at: ", swapContractAddress)
+			console.log("Cryptogama Log: Server address: ", serverAddress)
+			console.log("Cryptogama Log: Swap contract deployed at: ", swapContractAddress)
 	})
 	.catch(error => {
-		console.log('Deployment error', error);
+		console.log('Cryptogama Log: Deployment error', error);
 	})
 }
 
@@ -96,7 +96,7 @@ app.get('/api/tradeHistory', (req, res) => {
 	let tradeHistory = '';
   fs.readFile('./databases/trades.json', 'utf8', function readFileCallback(err, data){
   	if (err){
-      console.log(err);
+      console.log("Cryptogama Log: ",err);
     } else {
 	    tradeHistory = JSON.parse(data);
 	  }
@@ -109,7 +109,7 @@ app.get('/api/orderBook', (req, res) => {
 	let orderBook = '';
   fs.readFile('./databases/orderBook.json', 'utf8', function readFileCallback(err, data){
   	if (err){
-      console.log(err);
+      console.log("Cryptogama Log: ",err);
     } else {
 	    orderBook = JSON.parse(data);
 	  }
@@ -127,7 +127,7 @@ app.post('/api/insert', (req, res) => {
 	//LOAD ORDERBOOK JSON FILE
   fs.readFile('./databases/orderBook.json', 'utf8', function readFileCallback(err, data){
     if (err){
-      console.log(err);
+      console.log("Cryptogama Log: ",err);
     } else {
 	    let orderBook = JSON.parse(data);
 
@@ -162,9 +162,9 @@ app.post('/api/insert', (req, res) => {
 	    json = JSON.stringify(orderBook, null, 2);
 	    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
 			  if (err) {
-			  	console.log(err);
+			  	console.log("Cryptogama Log: ",err);
 			  } else {
-			  	console.log('New order added');
+			  	console.log("Cryptogama Log: New order added");
 			  }
 			});
 		}
@@ -186,7 +186,7 @@ checkOrderbook = async () => {
 	//LOAD ORDERBOOK JSON FILE
 	fs.readFile('./databases/orderBook.json', 'utf8', async function readFileCallback(err, data){
     if (err){
-      console.log(err);
+      console.log("Cryptogama Log: ",err);
     } else {
 		  let orderBook = JSON.parse(data);
 
@@ -215,10 +215,14 @@ checkOrderbook = async () => {
 			    	swapVolume = sellerVolume;
 			    }
 
-			    let swapCost = swapVolume * sellerPrice;
+			    fixRounding = (value, precision) => {
+					  var power = Math.pow(10, precision || 0);
+					  return Math.round(value * power) / power;
+					}
+			    let swapCost = fixRounding(swapVolume * sellerPrice, 2); 
 
 			    //TRY SWAP
-			    console.log(
+			    console.log("Cryptogama Log:",
 			    	"Trying swap transaction: seller:", seller,
 			    	" seller token: ", sellerTokenAddress,
 			    	" volume sold: ", swapVolume,
@@ -229,7 +233,7 @@ checkOrderbook = async () => {
 					await SwapAlyContract.methods.swapToken(seller, sellerTokenAddress, swapVolume*100, buyer, buyerTokenAddress, swapCost*100)
 					.send({from: serverAddress, gas:3000000})
 					.then(() => {
-						console.log("Swap transaction success");
+						console.log("Cryptogama Log: Swap transaction success");
 
 						//UPDATE EACH ORDER PARAMETERS (AND REMOVE ORDER IF VOLUME IS 0)
 						orderBook.DAIALY.asks[0].volume -= swapVolume;
@@ -247,9 +251,9 @@ checkOrderbook = async () => {
 						json = JSON.stringify(orderBook, null, 2);
 				    fs.writeFile('./databases/orderBook.json', json, 'utf8', (err) => {
 						  if (err) {
-						  	console.log(err);
+						  	console.log("Cryptogama Log: ",err);
 						  } else {
-						  	console.log('Orderbook updated');
+						  	console.log("Cryptogama Log: Orderbook updated");
 						  }
 						});
 
@@ -258,7 +262,7 @@ checkOrderbook = async () => {
 						//LOAD TRADES JSON FILE
 						fs.readFile('./databases/trades.json', 'utf8', async function readFileCallback(err, data){
 					    if (err){
-					      console.log(err);
+					      console.log("Cryptogama Log: ",err);
 					    } else {
 							  let tradeFile = JSON.parse(data);
 
@@ -275,27 +279,28 @@ checkOrderbook = async () => {
 								tradeFile.trades.unshift({
 									price: parseFloat(sellerPrice),
 									volume: parseFloat(swapVolume),
-									timestamp: nowStamp
+									timestamp: nowStamp,
+									epoch: Date.now()
 								})
 
 								//SAVE JSON FILE
 								json = JSON.stringify(tradeFile, null, 2);
 						    fs.writeFile('./databases/trades.json', json, 'utf8', (err) => {
 								  if (err) {
-								  	console.log(err);
+								  	console.log("Cryptogama Log: ",err);
 								  } else {
-								  	console.log('Trade history updated');
+								  	console.log("Cryptogama Log: Trade history updated");
 								  }
 								});
 							}
 						})	
 					})
 					.catch(error => {
-						console.log('checkOrderbook error', error);
+						console.log("Cryptogama Log: checkOrderbook error", error);
 					})
 					return;
 		    } else {
-		    	console.log("No matching orders")
+		    	console.log("Cryptogama Log: No matching orders")
 		    	return;
 		    }
 	    }
@@ -311,7 +316,7 @@ app.get('/api/swap',async (req, res) => {
 		res.send({ express: 'checkOrderbookFinished' })
 	})
 	.catch(error => {
-		console.log('checkOrderbook error', error)
+		console.log("Cryptogama Log: checkOrderbook error", error)
 	})
 });
 
