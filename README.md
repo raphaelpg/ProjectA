@@ -117,7 +117,7 @@ Once the app started, select the network 7545 in Metamask.
 Three Metamask accounts are used:  
 	Account #1: owner of the App  
 	Account #2: the owner of ALY ERC-20 tokens  
-	Account #3: the owner of DAI (ERC-20 tokens in this example)  
+	Account #3: the owner of DAI ERC-20 tokens  
 
 Important: after changing account in Metamask, refresh the browser for the change to be considered.  
 
