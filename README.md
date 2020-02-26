@@ -106,7 +106,8 @@ Then, run the application with below command:
 cd client
 npm run start
 ```
-Wait untill the browser open and Metamask asks for login.
+Wait untill the browser open and Metamask asks for login.  
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Capture.PNG)
 
 
 
