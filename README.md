@@ -1,4 +1,4 @@
-# Cryptogama
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Title.PNG)
 
 Cryptogama is a decentralized ERC-20 token exchange student project.  
 
