@@ -122,17 +122,17 @@ Three Metamask accounts are used:
 Important: after changing account in Metamask, refresh the browser for the change to be considered.  
 
 Select the account#2 in Metamask and place a Sell order, setting the price and the volume of ALY you want to sell and clicking on the Sell button.  
-![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Sell.PNG)
-The order should appear in the order book.
-![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Orderbook.PNG)
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Sell.PNG)  
+The order should appear in the order book.  
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Orderbook.PNG)  
 
-Select the account#3 in Metamask, refresh the browser, place a Buy order with the same price to exchange tokens with account#2. 
-![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Buy.PNG) 
+Select the account#3 in Metamask, refresh the browser, place a Buy order with the same price to exchange tokens with account#2.  
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Buy.PNG)  
 The exchange is automaticaly done when two orders have a matching price.  
-It can take some time to process, wait untill the Trade History and the Graph are updated.
-![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Graph.PNG) 
+It can take some time to process, wait untill the Trade History and the Graph are updated.  
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Graph.PNG)  
 
-You can check each token's balance in the App and in Metamask.
+You can check each token's balance in the App and in Metamask.  
 ![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Balnce.PNG)
 
 
@@ -151,8 +151,8 @@ From the test directory, run the tests with below command in another console :
 truffle test --network develop
 ```
 
-Three contracts are tested: two ERC-20 and the Swap contract.
-![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Tests.PNG)
+Three contracts are tested: two ERC-20 and the Swap contract.  
+![Cryptogama title](https://github.com/raphaelpg/Cryptogama/blob/master/images/Tests.PNG)  
 
 
 ## Deployment
