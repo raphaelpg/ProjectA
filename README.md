@@ -164,10 +164,14 @@ Public addresses will be displayed later.
 
 ## Built With
 
-* [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) - ECMAScript 2018 - v9  
-* [React](https://reactjs.org/) - A JavaScript library for building user interfaces - v16.12.0  
-* [web3js](https://web3js.readthedocs.io/en/v1.2.1/web3.html) - Used to interact with Ethereum blockchain and smart contracts - v1.2.1  
 * [Solidity](https://solidity.readthedocs.io/en/v0.6.0/#) - For smart contracts development - v0.5.12  
+* [web3js](https://web3js.readthedocs.io/en/v1.2.1/web3.html) - Used to interact with Ethereum blockchain and smart contracts - v1.2.1  
+* [Truffle](https://www.trufflesuite.com/docs/truffle/overview) - Development environment and testing framework for blockchains using the Ethereum Virtual Machine v5.1.2  
+* [Ganache](https://www.trufflesuite.com/docs/ganache/overview) - Personal blockchain for Ethereum development - v6.7.0  
+* [Node.js](https://nodejs.org/en/docs/) - Node.js is designed to build scalable network applications - v10.16.3  
+* [React](https://reactjs.org/) - A JavaScript library for building user interfaces - v16.12.0  
+* [Highcharts](https://api.highcharts.com/highcharts/) - Highcharts makes it easy for developers to set up interactive charts - v8.0.0  
+* [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) - ECMAScript 2018 - v9  
 
 
 ## Versioning
