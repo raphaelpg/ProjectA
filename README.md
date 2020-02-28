@@ -164,7 +164,7 @@ Public addresses will be displayed later.
 
 ## Security
 
-This project is a prototype for learning purposes, it is not recommended to use it on the mainnet.
+This project is a prototype for learning purposes, it is not recommended to use it on the mainnet.  
 Contracts haven't been audited.
 
 
