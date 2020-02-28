@@ -162,6 +162,12 @@ Contracts are not deployed on the mainnet nor testnets (Ropsten, Kovan, Rinkeby,
 Public addresses will be displayed later.
 
 
+## Security
+
+This project is a prototype for learning purposes, it is not recommended to use it on the mainnet.
+Contracts haven't been audited.
+
+
 ## Built With
 
 * [Solidity](https://solidity.readthedocs.io/en/v0.6.0/#) - For smart contracts development - v0.5.12  
