@@ -153,16 +153,16 @@ class App extends Component {
     //LISTEN TO CONTRACTS EVENTS:
 
     //ALY ERC-20 APPROVE EVENT
-    this.state.tokenAlyContract.events.Approval({ fromBlock: 'latest', toBlock: 'latest' },
+    this.state.tokenAlyContract.events.Transfer({ fromBlock: 'latest', toBlock: 'latest' },
     async (error, event) => {
-      console.log("Approve ALY: ",event)
+      console.log("Transfer ALY: ",event)
       this.displayOrderBook()
     })
 
     //DAI ERC-20 APPROVE EVENT
-    this.state.tokenDaiContract.events.Approval({ fromBlock: 'latest', toBlock: 'latest' },
+    this.state.tokenDaiContract.events.Transfer({ fromBlock: 'latest', toBlock: 'latest' },
     async (error, event) => {
-      console.log("Approve DAI: ",event)
+      console.log("Transfer DAI: ",event)
       this.displayOrderBook()
     })
 
@@ -203,14 +203,14 @@ class App extends Component {
               <BuyForm 
                 bestSellerPrice = { this.state.bestSellerPrice }
                 accounts = { this.state.accounts }
-                swapAlyOwner = { this.state.swapAlyOwner }
+                swapAlyContractAddress = { this.state.swapAlyContractAddress }
                 tokenDaiContract = { this.state.tokenDaiContract }
                 tokenDaiContractAddress = { this.state.tokenDaiContractAddress }
               />
               <SellForm 
                 bestSellerPrice = { this.state.bestSellerPrice }
                 accounts = { this.state.accounts }
-                swapAlyOwner = { this.state.swapAlyOwner }
+                swapAlyContractAddress = { this.state.swapAlyContractAddress }
                 tokenAlyContract = { this.state.tokenAlyContract }
                 tokenAlyContractAddress = { this.state.tokenAlyContractAddress }
               />

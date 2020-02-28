@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { checkOrders, fixRounding } from '../utils/serverInteractionsFunctions';
+import { checkOrders, fixRounding } from '../utils/serverInteractionsFunctions'; 
 
 class BuyForm extends Component {
 	constructor(props){
@@ -38,7 +38,7 @@ class BuyForm extends Component {
 
 	//SEND SELL ORDER TO SERVER
 	sellOrder = async (_volume, _price) => {
-	  const { accounts, swapAlyOwner, tokenAlyContract, tokenAlyContractAddress } = this.props;
+	  const { accounts, swapAlyContractAddress, tokenAlyContract, tokenAlyContractAddress } = this.props;
 
 	  //CHECK IF USER HAVE SUFFICIENT BALANCE
 	  let sellerBalance = await tokenAlyContract.methods.balanceOf(accounts[0]).call();
@@ -49,7 +49,7 @@ class BuyForm extends Component {
 	    this.state.pushedOrder = {'type': 'ask', 'price': _price, 'volume': _volume, 'total': total, 'seller': accounts[0], 'tokenContractAddress': tokenAlyContractAddress};
 
 	    //EXECUTE APPROVAL TO THE TOKEN CONTRACT
-	    await tokenAlyContract.methods.approve(swapAlyOwner, _volume*100).send({from: accounts[0]});
+	    await tokenAlyContract.methods.transfer(swapAlyContractAddress, _volume*100).send({from: accounts[0]});
 
 	    //SEND ORDER TO SERVER
 	    await fetch('/api/insert', {

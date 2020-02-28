@@ -96,11 +96,9 @@ contract ERC20 is Context, IERC20 {
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
-        require(_allowances[sender][tx.origin] >= amount, "Insufficient allowance");
+        require(_allowances[sender][_msgSender()] >= amount, "Insufficient allowance");
         _transfer(sender, recipient, amount);
-        //_approve(sender, tx.origin, _allowances[sender][tx.origin].sub(amount, "ERC20: transfer amount exceeds allowance"));
-        //Allowance is arbitrary set to 0 to avoid approve attack
-        _approve(sender, tx.origin, 0);
+        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
 

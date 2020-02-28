@@ -184,25 +184,53 @@ contract("SwapAly", function(accounts){
 
     
     //Test 17
-    it("Check swap contract owner", async function() {
+    it("Check swap contract get owner function", async function() {
         expect(await this.SwapAlyInstance.getOwner()).to.equal(contractOwner);
     });
 
 
     //Test 18
-    it("Check swapToken function regarding owner's balances", async function() {
+    it("Check swap contract transferOwnership function", async function() {
+        await this.SwapAlyInstance.transferOwnership(seller, {from: contractOwner});
+        expect(await this.SwapAlyInstance.getOwner()).to.equal(seller);
+    });
+
+
+    //Test 19
+    it("Check swapToken function regarding token balances", async function() {
         let sellAmount = new BN('10000');
         let buyAmount = new BN('150000');
-        await this.TokenERC20AlyInstance.approve(contractOwner, sellAmount, {from: seller});
-        await this.TokenERC20DaiInstance.approve(contractOwner, buyAmount, {from: buyer});
 
-        let sellerAlyBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(seller);
-        let sellerDaiBalanceBefore = await this.TokenERC20DaiInstance.balanceOf(seller);
-        console.log("Seller's balance before swap: ALY:",parseInt(sellerAlyBalanceBefore), " DAI:",parseInt(sellerDaiBalanceBefore));
+        console.log("Initial balances: ")
 
-        let buyerDaiBalanceBefore = await this.TokenERC20DaiInstance.balanceOf(buyer);
-        let buyerAlyBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(buyer);
-        console.log("Buyer's balance before swap: ALY:",parseInt(buyerAlyBalanceBefore), " DAI:",parseInt(buyerDaiBalanceBefore));
+        let sellerAlyBalanceBeforeTransfer = await this.TokenERC20AlyInstance.balanceOf(seller);
+        let sellerDaiBalanceBeforeTransfer = await this.TokenERC20DaiInstance.balanceOf(seller);
+        console.log("Seller's balance before transfer: ALY:",parseInt(sellerAlyBalanceBeforeTransfer), " DAI:",parseInt(sellerDaiBalanceBeforeTransfer));
+
+        let buyerDaiBalanceBeforeTransfer = await this.TokenERC20DaiInstance.balanceOf(buyer);
+        let buyerAlyBalanceBeforeTransfer = await this.TokenERC20AlyInstance.balanceOf(buyer);
+        console.log("Buyer's balance before transfer: ALY:",parseInt(buyerAlyBalanceBeforeTransfer), " DAI:",parseInt(buyerDaiBalanceBeforeTransfer));
+
+        let contractDaiBalanceBeforeTransfer = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        let contractAlyBalanceBeforeTransfer = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract's balance before transfer: ALY:",parseInt(contractAlyBalanceBeforeTransfer), " DAI:",parseInt(contractDaiBalanceBeforeTransfer));
+
+        await this.TokenERC20AlyInstance.transfer(this.SwapAlyInstance.address, sellAmount, {from: seller});
+        await this.TokenERC20DaiInstance.transfer(this.SwapAlyInstance.address, buyAmount, {from: buyer});
+
+        console.log("After transfer balances: ")
+
+        let sellerAlyBalanceBeforeSwap = await this.TokenERC20AlyInstance.balanceOf(seller);
+        let sellerDaiBalanceBeforeSwap = await this.TokenERC20DaiInstance.balanceOf(seller);
+        console.log("Seller's balance before swap: ALY:",parseInt(sellerAlyBalanceBeforeSwap), " DAI:",parseInt(sellerDaiBalanceBeforeSwap));
+
+        let buyerDaiBalanceBeforeSwap = await this.TokenERC20DaiInstance.balanceOf(buyer);
+        let buyerAlyBalanceBeforeSwap = await this.TokenERC20AlyInstance.balanceOf(buyer);
+        console.log("Buyer's balance before swap: ALY:",parseInt(buyerAlyBalanceBeforeSwap), " DAI:",parseInt(buyerDaiBalanceBeforeSwap));
+
+        let contractDaiBalanceBeforeSwap = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        let contractAlyBalanceBeforeSwap = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract's balance before swap: ALY:",parseInt(contractAlyBalanceBeforeSwap), " DAI:",parseInt(contractDaiBalanceBeforeSwap));
 
         await this.SwapAlyInstance.swapToken(
             seller,
@@ -210,9 +238,10 @@ contract("SwapAly", function(accounts){
             sellAmount,
             buyer,
             this.TokenERC20DaiInstance.address,
-            buyAmount,
-            {from: contractOwner}
+            buyAmount
         );
+
+        console.log("After swap balances: ")
 
         let sellerAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(seller);
         let sellerDaiBalanceAfter = await this.TokenERC20DaiInstance.balanceOf(seller);
@@ -222,74 +251,40 @@ contract("SwapAly", function(accounts){
         let buyerAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(buyer);
         console.log("Buyer's balance after swap: ALY:",parseInt(buyerAlyBalanceAfter), " DAI:",parseInt(buyerDaiBalanceAfter));
 
-        expect(sellerAlyBalanceAfter).to.be.bignumber.equal(sellerAlyBalanceBefore.sub(sellAmount));
-        expect(sellerDaiBalanceAfter).to.be.bignumber.equal(sellerDaiBalanceBefore.add(buyAmount));
+        let contractDaiBalanceAfter = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        let contractAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract's balance after swap: ALY:",parseInt(contractAlyBalanceAfter), " DAI:",parseInt(contractDaiBalanceAfter));
 
-        expect(buyerDaiBalanceAfter).to.be.bignumber.equal(buyerDaiBalanceBefore.sub(buyAmount));
-        expect(buyerAlyBalanceAfter).to.be.bignumber.equal(buyerAlyBalanceBefore.add(sellAmount));
+        expect(sellerAlyBalanceAfter).to.be.bignumber.equal(sellerAlyBalanceBeforeTransfer.sub(sellAmount));
+        expect(sellerDaiBalanceAfter).to.be.bignumber.equal(sellerDaiBalanceBeforeTransfer.add(buyAmount));
+
+        expect(buyerDaiBalanceAfter).to.be.bignumber.equal(buyerDaiBalanceBeforeTransfer.sub(buyAmount));
+        expect(buyerAlyBalanceAfter).to.be.bignumber.equal(buyerAlyBalanceBeforeTransfer.add(sellAmount));
+
+        expect(contractDaiBalanceAfter).to.be.bignumber.equal(new BN('0'));
+        expect(contractAlyBalanceAfter).to.be.bignumber.equal(new BN('0'));
     });
-
-
-    //Test 19
-    it("Check swapToken function regarding swap contract approval and allowances", async function() {
-        let sellAmount = new BN('10000');
-        let buyAmount = new BN('150000');
-        
-        await this.TokenERC20AlyInstance.approve(contractOwner, sellAmount, {from: seller});
-        let sellerBeforeSwapAllowance = await this.TokenERC20AlyInstance.allowance(seller, contractOwner);
-        console.log("ALY allowance before swap:", parseInt(sellerBeforeSwapAllowance));
-        
-        await this.TokenERC20DaiInstance.approve(contractOwner, buyAmount, {from: buyer});
-        let buyerBeforeSwapAllowance = await this.TokenERC20DaiInstance.allowance(buyer, contractOwner);
-        console.log("DAI allowance before swap:", parseInt(buyerBeforeSwapAllowance));
-        
-        await this.SwapAlyInstance.swapToken(
-            seller,
-            this.TokenERC20AlyInstance.address,
-            sellAmount,
-            buyer,
-            this.TokenERC20DaiInstance.address,
-            buyAmount,
-            {from: contractOwner}
-        );
-
-        let sellerAfterSwapAllowance = await this.TokenERC20AlyInstance.allowance(seller, contractOwner);
-        console.log("ALY allowance after swap:", parseInt(sellerAfterSwapAllowance));
-
-        let buyerAfterSwapAllowance = await this.TokenERC20DaiInstance.allowance(buyer, contractOwner);
-        console.log("DAI allowance after swap:", parseInt(buyerAfterSwapAllowance));
-
-        expect(sellerAfterSwapAllowance).to.be.bignumber.equal(sellerBeforeSwapAllowance.sub(sellAmount));
-        expect(buyerAfterSwapAllowance).to.be.bignumber.equal(buyerBeforeSwapAllowance.sub(buyAmount));
-    });
-
 
     //Test 20
-    it("Check swapToken function regarding approve attack", async function() {
+    it("Check swapToken function regarding hacker's calling", async function() {
         let sellAmount = new BN('10000');
         let buyAmount = new BN('150000');
-        await this.TokenERC20AlyInstance.approve(contractOwner, sellAmount, {from: seller});
-        await this.TokenERC20DaiInstance.approve(contractOwner, buyAmount, {from: buyer});
 
-        let sellerAlyBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(seller);
-        console.log("Seller's balance before swap: ALY:",parseInt(sellerAlyBalanceBefore));
+        await this.TokenERC20AlyInstance.transfer(this.SwapAlyInstance.address, sellAmount, {from: seller});
+        await this.TokenERC20DaiInstance.transfer(this.SwapAlyInstance.address, buyAmount, {from: buyer});
 
-        await this.SwapAlyInstance.swapToken(
+        console.log("Expect hacker call to be reverted");
+
+        await expectRevert(this.SwapAlyInstance.swapToken(
             seller,
             this.TokenERC20AlyInstance.address,
             sellAmount,
-            buyer,
+            hacker,
             this.TokenERC20DaiInstance.address,
             buyAmount,
-            {from: contractOwner}
-        );
+            {from: hacker}
+        ),"Only owner can call this function");
 
-        //Hacker tries to perform another transferFrom after the swap function to empty seller's wallet and then corrupt the orderbook
-        await expectRevert(this.TokenERC20AlyInstance.transferFrom(seller, contractOwner, sellAmount, {from: hacker}), 'Insufficient allowance')
-        console.log("Expect revert after approve attack")
-
-        let sellerAlyBalanceAfter = await this.TokenERC20AlyInstance.balanceOf(seller);
-        console.log("Seller's balance after swap: ALY:",parseInt(sellerAlyBalanceAfter));
-        expect(sellerAlyBalanceAfter).to.be.bignumber.equal(sellerAlyBalanceBefore.sub(sellAmount));
+        console.log("Call reverted");
     });
 });

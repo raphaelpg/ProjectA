@@ -18,6 +18,16 @@ contract SwapAly{
         _owner = msg.sender;
     }
 
+    modifier ownerOnly() {
+        require(msg.sender == _owner, "Only owner can call this function");
+        _;
+    }
+
+    function transferOwnership(address newOwner) external ownerOnly {
+        require(msg.sender != address(0));
+        _owner = newOwner;
+    }
+
     /// @author Raphael Pinto Gregorio
     /// @notice return contract owner
     /// @dev basic function
@@ -31,12 +41,12 @@ contract SwapAly{
     /// @dev swap tokens, owner of swap contract need the approval of both token owners, emit an event called TokenExchanged
     /// @param sellerAddress the address of the seller, sellerTokenAddress the address of the seller ERC-20, amountSeller the amount the seller wants to exchange, buyerAddress the buyer address, buyerTokenAddress the adress of the buyer ERC-20, amountBuyer the amount to be exchanged
     /// @return an event TokenExchanged containing the seller address, the buyer address, the amount sold and the amount bought in this order
-    function swapToken(address sellerAddress, address sellerTokenAddress, uint256 amountSeller,  address buyerAddress, address buyerTokenAddress, uint256 amountBuyer) external returns(bool){
+    function swapToken(address sellerAddress, address sellerTokenAddress, uint256 amountSeller,  address buyerAddress, address buyerTokenAddress, uint256 amountBuyer) external ownerOnly returns(bool){
         TokenERC20Aly TokenSell = TokenERC20Aly(sellerTokenAddress);
         TokenERC20Dai TokenBuy = TokenERC20Dai(buyerTokenAddress);
 
-        TokenSell.transferFrom(sellerAddress, buyerAddress, amountSeller);
-        TokenBuy.transferFrom(buyerAddress, sellerAddress, amountBuyer);
+        TokenSell.transfer(buyerAddress, amountSeller);
+        TokenBuy.transfer(sellerAddress, amountBuyer);
 
         emit TokenExchanged(sellerAddress, buyerAddress, amountSeller, amountBuyer);
     }
