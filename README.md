@@ -2,7 +2,9 @@
 
 Cryptogama is a decentralized ERC-20 token exchange student project.  
 
-For teaching purposes only, it runs on a local ethereum blockchain and allows you to place buy and sell orders between two tokens: the ALY and the DAI.
+For teaching purposes only, it runs on a local ethereum blockchain and allows you to place buy and sell orders on two ERC20 tokens.
+
+Order book and trade engine are hosted on an off-chain server and token exchange is executed through a smart contract on the blockchain.
 
 ## Getting Started
 
