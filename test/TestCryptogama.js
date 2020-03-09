@@ -185,14 +185,14 @@ contract("SwapAly", function(accounts){
     
     //Test 17
     it("Check swap contract get owner function", async function() {
-        expect(await this.SwapAlyInstance.getOwner()).to.equal(contractOwner);
+        expect(await this.SwapAlyInstance.owner()).to.equal(contractOwner);
     });
 
 
     //Test 18
     it("Check swap contract transferOwnership function", async function() {
         await this.SwapAlyInstance.transferOwnership(seller, {from: contractOwner});
-        expect(await this.SwapAlyInstance.getOwner()).to.equal(seller);
+        expect(await this.SwapAlyInstance.owner()).to.equal(seller);
     });
 
 
@@ -283,8 +283,66 @@ contract("SwapAly", function(accounts){
             this.TokenERC20DaiInstance.address,
             buyAmount,
             {from: hacker}
-        ),"Only owner can call this function");
+        ),"Ownable: caller is not the owner");
 
         console.log("Call reverted");
+    });
+
+    //Test 21
+        it("Check swap contract withdrawAll() function", async function() {
+        let ALYAmount = new BN('2000');
+        let DAIAmount = new BN('20000');
+
+        //Check owner balance in ETH, ALY and DAI
+        let contractOwnerETHBalanceBefore = await web3.eth.getBalance(contractOwner);
+        console.log("Owner", contractOwnerETHBalanceBefore/1000000000000000000, "ETH");
+        let ownerALYBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(contractOwner);
+        console.log("Owner: ", parseInt(ownerALYBalanceBefore), "ALY");
+        let ownerDAIBalanceBefore = await this.TokenERC20DaiInstance.balanceOf(contractOwner);
+        console.log("Owner: ", parseInt(ownerDAIBalanceBefore), "DAI");
+
+        //Check contract balance in ETH, ALY and DAI
+        let SwapETHBalanceBefore = await web3.eth.getBalance(this.SwapAlyInstance.address);
+        console.log("Contrac:t", SwapETHBalanceBefore/1000000000000000000, "ETH");
+        let contractALYBalanceBefore = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract:", parseInt(contractALYBalanceBefore), "ALY");
+        let contractDAIBalanceBefore = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract:", parseInt(contractDAIBalanceBefore), "DAI");
+
+        //Send ETH, ALY and ETH to the contract
+        await web3.eth.sendTransaction({from:seller, to:this.SwapAlyInstance.address, value:"10000000000000000000"});
+        console.log("Send 10 ETH");
+        await this.TokenERC20AlyInstance.transfer(this.SwapAlyInstance.address, ALYAmount, {from: seller});
+        console.log("Send 2000 ALY");
+        await this.TokenERC20DaiInstance.transfer(this.SwapAlyInstance.address, DAIAmount, {from: buyer});
+        console.log("Send 20000 DAI");
+
+        //Check contract balance in ETH, ALY and DAI
+        let SwapETHBalanceAfterTransaction = await web3.eth.getBalance(this.SwapAlyInstance.address);
+        console.log("Contract:", SwapETHBalanceAfterTransaction/1000000000000000000, "ETH");
+        let contractALYBalanceAfterTransaction = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract:", parseInt(contractALYBalanceAfterTransaction), "ALY");
+        let contractDAIBalanceAfterTransaction = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract:", parseInt(contractDAIBalanceAfterTransaction), "DAI");
+
+        //Withdraw function
+        await this.SwapAlyInstance.withdrawAll(this.TokenERC20AlyInstance.address, this.TokenERC20DaiInstance.address);
+        console.log("Contract withdraw function()");
+
+        //Check contract balance in ETH, ALY and DAI
+        let SwapETHBalanceAfterWithdraw = await web3.eth.getBalance(this.SwapAlyInstance.address);
+        console.log("Contract", SwapETHBalanceAfterWithdraw/1000000000000000000, "ETH");
+        let contractALYBalanceAfterWithdraw = await this.TokenERC20AlyInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract: ", parseInt(contractALYBalanceAfterWithdraw), "ALY");
+        let contractDAIBalanceAfterWithdraw = await this.TokenERC20DaiInstance.balanceOf(this.SwapAlyInstance.address);
+        console.log("Contract: ", parseInt(contractDAIBalanceAfterWithdraw), "DAI");
+
+        //Check owner balance in ETH, ALY and DAI
+        let contractOwnerETHBalanceAfterWithdraw = await web3.eth.getBalance(contractOwner);
+        console.log("Owner", contractOwnerETHBalanceAfterWithdraw/1000000000000000000, "ETH");
+        let ownerALYBalanceAfterWithdraw = await this.TokenERC20AlyInstance.balanceOf(contractOwner);
+        console.log("Owner: ", parseInt(ownerALYBalanceAfterWithdraw), "ALY");
+        let ownerDAIBalanceAfterWithdraw = await this.TokenERC20DaiInstance.balanceOf(contractOwner);
+        console.log("Owner: ", parseInt(ownerDAIBalanceAfterWithdraw), "DAI");
     });
 });
